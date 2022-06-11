@@ -1,28 +1,31 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <router-link to="/login" class="btn">excel在线编辑</router-link>
+
+    <router-link to="/home" class="btn">左右滚动</router-link>
+
+    <router-link to="/page1" class="btn">excel在线编辑page1 </router-link>
+
+    <router-link to="/page2" class="btn">excel在线编辑page2</router-link>
+    <router-link to="/page3" class="btn">excel在线编辑page3</router-link>
+    <router-link to="/page4" class="btn">excel在线编辑page4</router-link>
+    <router-link to="/page5" class="btn">excel在线编辑page5</router-link>
+    <router-link to="/page6" class="btn">page6</router-link>
+
+    <router-view> </router-view>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+  name: "App",
+};
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+<style lang="less" scoped>
+#app{
+  .btn{
+    margin-right: 10px;
+  }
 }
 </style>
