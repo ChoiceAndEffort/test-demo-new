@@ -85,5 +85,5 @@ router.matcher = new Router().matcher
 
 router.addRoutes(newList);
 
-console.log(1111, newList);
+// console.log(1111, newList);
 export default router // 导出路由对象
