@@ -1,5 +1,17 @@
 <template>
   <div class="hb_table">
+    <!-- 展示搜索栏 -->
+    <!-- <el-switch
+      v-model="showSearchTable"
+      active-color="#13ce66"
+      inactive-color="#ff4949"
+    >
+    </el-switch>
+    <el-button type="primary" size="mini" v-show="showSearchTable"
+      >查询</el-button
+    >
+    <el-button type="primary" size="mini" v-show="showSearchTable"
+      >重置</el-button> -->
     <transition name="el-zoom-in-top">
       <TableHint :num="num" @empty="empty"></TableHint>
     </transition>
@@ -12,12 +24,77 @@
       :style="{ width: drawer ? '85%' : '100%' }"
       @selection-change="handleSelectionChange"
     >
-      <el-table-column v-if="selection" fixed type="selection" width="50">
-      </el-table-column>
+      <slot name="selection">
+        <el-table-column v-if="selection" fixed type="selection" width="50">
+        </el-table-column>
+      </slot>
+
       <template v-for="(item, index) in copyColConfig">
+        <!-- 自定义列(头部) -->
+        <el-table-column
+          v-if="item.slotHeaderName && item.attrs.switch"
+          :key="index"
+          :align="item.attrs.align"
+          :show-overflow-tooltip="
+            item.attrs.showOverflowTooltip
+              ? item.attrs.showOverflowTooltip
+              : false
+          "
+          :resizable="
+            border == true && item.attrs.resizable
+              ? item.attrs.resizable
+              : false
+          "
+          :width="item.attrs.width ? item.attrs.width : ''"
+          v-bind="item.attrs || {}"
+        >
+          <template slot="header" slot-scope="scope">
+            <div v-if="item.slotHeaderName === 'hbSetting'">
+              <!-- 展示表头搜索 -->
+              <i
+                :class="
+                  showSearchTable ? 'el-icon-arrow-up' : 'el-icon-arrow-down'
+                "
+                @click="showSearchTable = !showSearchTable"
+              ></i>
+              <span class="i-division">|</span>
+
+              <i
+                class="el-icon-search"
+                @click="handleSearch"
+                v-show="showSearchTable"
+              ></i>
+              <span class="i-division" v-show="showSearchTable">|</span>
+              <!-- 查询 -->
+              <i class="el-icon-delete" @click="handleResetSearch"></i>
+              <span class="i-division">|</span>
+              <!-- 重置 -->
+              <i class="el-icon-setting" @click="handleSetTable"></i>
+            </div>
+            <div v-else>
+              <div :align="item.attrs.align">{{ item.attrs.label }}</div>
+              <slot
+                :name="item.slotHeaderName"
+                :row="item.attrs"
+                v-if="showSearchTable"
+              >
+              </slot>
+            </div>
+          </template>
+          <!-- 自定义表头列下的内容 -->
+          <template slot-scope="scope">
+            <template v-if="item.slotHeaderName === 'hbSetting'">
+              <slot name="operation" :row="scope.row"></slot>
+            </template>
+            <template v-else>
+              {{ scope.row[item.attrs.prop] }}
+            </template>
+          </template>
+        </el-table-column>
+
         <!-- 自定义列(内容) -->
         <el-table-column
-          v-if="item.slot && item.attrs.switch"
+          v-else-if="item.slot && item.attrs.switch"
           :key="index"
           :align="item.attrs.align"
           :show-overflow-tooltip="
@@ -37,33 +114,7 @@
             <slot :name="item.slot" :scope="scope"></slot>
           </template>
         </el-table-column>
-        <!-- 自定义列(头部) -->
-        <el-table-column
-          v-else-if="item.slotHeader"
-          :key="index"
-          :align="item.attrs.align"
-          :show-overflow-tooltip="
-            item.attrs.showOverflowTooltip
-              ? item.attrs.showOverflowTooltip
-              : false
-          "
-          :resizable="
-            border == true && item.attrs.resizable
-              ? item.attrs.resizable
-              : false
-          "
-          :width="item.attrs.width ? item.attrs.width : ''"
-          v-bind="item.attrs || {}"
-        >
-          <template slot="header" slot-scope="scope">
-            <i
-              class="el-icon-setting"
-              @click="handleSetTable"
-              v-if="item.slotHeader === 'hbSetting'"
-            ></i>
-            <slot :name="item.slotHeader" :scope="scope" v-else></slot>
-          </template>
-        </el-table-column>
+
         <!-- 填充剩余宽度列 -->
         <el-table-column
           v-else-if="
@@ -86,10 +137,10 @@
           "
           :fixed="item.attrs.fixed ? item.attrs.fixed : false"
           :sortable="item.sortable ? item.sortable : false"
-        >
+          >999
         </el-table-column>
-        <!-- 一般正常列 -->
 
+        <!-- 一般正常列 -->
         <template v-else>
           <el-table-column
             :key="index"
@@ -269,11 +320,12 @@ export default {
       num: 0,
       drawer: false,
       copyColConfig: JSON.parse(JSON.stringify(this.colConfig)),
+      showSearchTable: false,
     };
   },
   computed: {
     haveHbSetting() {
-      return this.colConfig.some((item) => item.slotHeader === "hbSetting");
+      return this.colConfig.some((item) => item.slotHeaderName === "hbSetting");
     },
   },
   methods: {
@@ -295,6 +347,15 @@ export default {
     handleColConfig(val) {
       this.copyColConfig = JSON.parse(JSON.stringify(val));
       console.log("改变了吗--------", this.copyColConfig);
+    },
+    handleShow() {
+      this.showSearchTable = true;
+    },
+    handleSearch() {
+      this.$emit("to-search");
+    },
+    handleResetSearch() {
+      this.$emit("reset-search");
     },
   },
   created() {
@@ -346,6 +407,10 @@ export default {
   .el-table .ascending .sort-caret.ascending {
     border-bottom-color: #1678ff;
   }
+  // .i-division {
+  //   padding: 0 5px;
+  //   display: none;
+  // }
 }
 </style>
   

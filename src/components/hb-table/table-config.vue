@@ -56,7 +56,7 @@ export default {
   },
   computed: {
     haveHbSetting() {
-      return this.initList.some((item) => item.slotHeader === "hbSetting");
+      return this.initList.some((item) => item.slotHeaderName === "hbSetting");
     },
   },
   watch: {

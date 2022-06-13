@@ -213,7 +213,7 @@ export default {
         // startRows: 20,
         // minRows: 4, // 最小行
         // minCols: 3,
-        maxRows:10, // 最大行
+        maxRows: 10, // 最大行
 
         // 数据在这个里面，由数据填充表。当 data 为 null 时，startRows/startCols 生效，否则 data 有数据、[[]]，都不会生效，而且不能直接为 []/{}，会报错
         data: null,
@@ -322,11 +322,12 @@ export default {
         afterChange(changes, source) {
           console.log("changes: ", changes); // row, prop, oldVal, newVal
           console.log("source: ", source); // op
-
-      
         },
       },
     };
+  },
+  methods: {
+
   },
 };
 </script>

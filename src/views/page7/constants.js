@@ -1,36 +1,28 @@
 export const colConfig = [
-    // {
-    //     attrs: {
-    //         align: "center",
-    //         type: "selection",
-    //         "reserve-selection": true,
-    //         prop: "checked"
-    //     },
-    // },
     {
-        slotHeaderName: 'searchNestingName',
-        slotHeaderSearchType:'input',
+        attrs: {
+            align: "center",
+            type: "selection",
+            "reserve-selection": true,
+            prop:"checked"
+        },
+    },
+    {
         attrs: {
             label: "1套料图名称",
             prop: "nestingName",
             align: "center",
             switch: true,
-            resizable: true,
-            searchKey: "nestingName",
-            width:'100px'
+            resizable:true
         },
     },
     {
-        slotHeaderName: 'searchTotalPage',
-        slotHeaderSearchType:'input',
         attrs: {
             label: "2图纸数量",
             prop: "totalPage",
             align: "center",
             switch: true,
-            resizable: true,
-            searchKey: "totalPage",
-            width:'100px'
+            resizable:true
         },
     },
     {
@@ -38,93 +30,52 @@ export const colConfig = [
             label: "3零件总重量（千克）",
             prop: "sparePartsTotalWeight",
             align: "center",
-            switch: true,
-            width:'300px'
+            switch: true
         },
     },
     {
-        attrs: {
-            label: "3-001零件总重量（千克）",
-            prop: "sparePartsTotalWeight1",
-            align: "center",
-            switch: true,
-            width:'300px'
-        },
-    },
-    {
-        attrs: {
-            label: "3-002零件总重量（千克）",
-            prop: "sparePartsTotalWeight2",
-            align: "center",
-            switch: true,
-            width:'100px'
-        },
-    },
-    {
-        slotHeaderName: 'searchRawMaterialTotalWeight',
         attrs: {
             label: "4原材料总重量（千克）",
             prop: "rawMaterialTotalWeight",
             align: "center",
-            switch: true,
-            searchKey:'date',
-            width:'160px'
-        },
-    },
-    {
-        slotHeaderName: 'selectStatus',
-        slotHeaderSearchType:'select',
-        attrs: {
-            label: "5图纸状态",
-            prop: "status",
-            align: "center",
-            switch: true,
-            searchKey: "status",
-            width:'160px'
-        },
-    },
-    {
-        slotHeaderName: 'selectStatus1',
-        slotHeaderSearchType:'select',
-        attrs: {
-            label: "5图纸状态1",
-            prop: "status1",
-            align: "center",
-            switch: true,
-            searchKey: "status1",
-            width:'160px'
+            switch: true
         },
     },
 
-    // {
-    //     slot: "opCol",
-    //     attrs: {
-    //         label: "操作",
-    //         align: "center",
-    //         switch: true,
-    //         // width: "200px"
-    //     },
-    // },
     {
-        // slot: "opCol",
-        slotHeaderName: 'hbSetting', //是否展示表格配置项
+        slot: "opCol",
+        attrs: {
+            label: "操作",
+            align: "center",
+            switch: true
+            // width: "200px"
+        },
+    },
+    {
+        slotHeader: 'hbSetting', //是否展示表格配置项
         attrs: {
             label: "",
-            width: '150px',
-            switch: true,
-            fixed:'right',
+            width: '30px'
         },
     },
 ]
 
 export const colConfig1 = [
+    // {
+    //     attrs: {
+    //         align: "center",
+    //         type: "selection",
+    //         "reserve-selection": true,
+    //         prop:"checked"
+    //     },
+    // },
     {
         attrs: {
             label: "1-2图名称",
             prop: "nestingName",
             align: "center",
             switch: true,
-            resizable: true
+            resizable:true
         },
     },
     {
@@ -200,7 +151,7 @@ export const colConfig1 = [
     //     },
     // },
     // {
-    //     slotHeaderName:'ddd',
+    //     slotHeader:'ddd',
     //     attrs: {
     //         label: "11原材料总重量（千克）",
     //         prop: "rawMaterialTotalWeight12",
@@ -219,11 +170,10 @@ export const colConfig1 = [
         },
     },
     {
-        slotHeaderName: 'hbSetting',
+        slotHeader: 'hbSetting',
         attrs: {
             label: "",
-            width: '30px',
-            switch: true,
+            width: '30px'
         },
     },
 ]

@@ -54,6 +54,17 @@ const addRoute = [
         name: "page6",
         component: () => import("@/views/page6/page6.vue")
     },
+    {
+        path: "/page7",
+        name: "page7",
+        component: () => import("@/views/page7/page7.vue")
+    },
+    {
+        path: "/page8",
+        name: "page8",
+        component: () => import("@/views/page7/page7 copy.vue")
+    },
+
 ]
 
 

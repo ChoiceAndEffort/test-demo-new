@@ -2,6 +2,7 @@
 
 <template>
   <div>
+    <el-button @click="handleGetData">手动删除行</el-button>
     <div id="hotTable" class="hotTable">
       <HotTable :root="root" ref="testHot" :settings="hotSettings"></HotTable>
     </div>
@@ -61,7 +62,7 @@ export default {
 
         minSpareCols: 2, //列留白
 
-        minSpareRows: 2, //行留白
+        minSpareRows: 0, //行留白
 
         currentRowClassName: "currentRow", //为选中行添加类名，可以更改样式
 
@@ -210,6 +211,9 @@ export default {
   },
 
   methods: {
+    handleGetData() {
+      console.log(this.hotSettings.data, "看下删除后的数据");
+    },
     saveData() {
       var examData = this.$refs.testHot.table.getData(); //这里要注意，如果使用this.hotSettings.data 保存表格数据，拖拽完以后数据的顺序将不会更新，因此使用 this.$refs.testHot.table.getData(); 来获取数据，获取的数据格式为二维数组。
 
