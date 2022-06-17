@@ -3,121 +3,113 @@
     <transition name="el-zoom-in-top">
       <TableHint :num="num" @empty="empty"></TableHint>
     </transition>
-    <!-- <transition name="el-zoom-in-top"> -->
-      <el-table
-        :ref="tableName"
-        header-row-class-name="table-header-gray"
-        :data="tableData"
-        :stripe="stripe"
-        :border="border"
-        :style="{ width: drawer ? '85%' : '100%' }"
-        @selection-change="handleSelectionChange"
-      >
-        <slot name="selection">
-          <el-table-column v-if="selection" fixed type="selection" width="50">
-          </el-table-column>
-        </slot>
+    <el-table
+      :ref="tableName"
+      v-bind="$attrs"
+      v-on="$listeners"
+      :data="tableData"
+      :stripe="stripe"
+      :border="border"
+      :style="{ width: drawer ? '85%' : '100%' }"
+      :header-row-class-name="headerClass"
+      :cell-class-name="cellClassName"
+      :row-class-name="rowClassNames || rowClassName"
+      @selection-change="handleSelectionChange"
+      @cell-mouse-enter="handleMouseEnter"
+      @cell-mouse-leave="handleMouseLeave"
+    >
+      <template v-for="(item, index) in copyColConfig">
+        <!-- 自定义列(头部)及对应列内容展示 -->
+        <el-table-column
+          v-if="item.slotHeaderName && item.switch"
+          :key="index"
+          v-bind="item.attrs || {}"
+          :align="item.attrs.align"
+        >
+          <template slot="header" slot-scope="scope">
+            <template v-if="item.slotHeaderName === 'hbSetting'">
+              <!-- 展示表头搜索 -->
+              <i
+                class="i-division"
+                :class="
+                  showSearchTable ? 'el-icon-arrow-up' : 'el-icon-arrow-down'
+                "
+                @click="showSearchTable = !showSearchTable"
+              ></i>
+              <!-- 配置 -->
+              <i class="el-icon-setting i-division" @click="handleSetTable"></i>
+              <br />
+              <!-- 查询 -->
+              <i
+                class="el-icon-search i-division"
+                @click="handleSearch"
+                v-show="showSearchTable"
+              ></i>
 
-        <template v-for="(item, index) in copyColConfig">
-          <!-- 自定义列(头部)及对应列内容展示 -->
-          <el-table-column
-            v-if="item.slotHeaderName && item.switch"
-            :key="index"
-            v-bind="item.attrs || {}"
-            :align="item.attrs.align"
-          >
-            <template slot="header" slot-scope="scope">
-              <template v-if="item.slotHeaderName === 'hbSetting'">
-                <!-- 展示表头搜索 -->
-                <i
-                  class="i-division"
-                  :class="
-                    showSearchTable ? 'el-icon-arrow-up' : 'el-icon-arrow-down'
-                  "
-                  @click="showSearchTable = !showSearchTable"
-                ></i>
-                <br />
-                <!-- <span class="i-division">|</span> -->
-
-                <i
-                  class="el-icon-search i-division"
-                  @click="handleSearch"
-                  v-show="showSearchTable"
-                ></i>
-
-                <!-- <span class="i-division" v-show="showSearchTable">|</span> -->
-
-                <!-- 查询 -->
-                <i
-                  class="el-icon-delete i-division"
-                  @click="handleResetSearch"
-                ></i>
-                <!-- <span class="i-division">|</span> -->
-                <br />
-                <!-- 重置 -->
-                <i
-                  class="el-icon-setting i-division"
-                  @click="handleSetTable"
-                ></i>
-              </template>
-              <template v-else>
-                <template>{{ item.attrs.label }}</template>
-                <slot
-                  :name="item.slotHeaderName"
-                  :row="item"
-                  v-if="showSearchTable"
-                  v-bind="item.attrs || {}"
-                >
-                </slot>
-              </template>
+              <!-- 重置 -->
+              <i
+                class="el-icon-delete i-division"
+                @click="handleResetSearch"
+              ></i>
             </template>
-
-            <!-- 自定义表头列下的内容 -->
-            <template slot-scope="scope">
-              <template v-if="item.slotHeaderName === 'hbSetting'">
-                <slot name="operation" :row="scope.row"></slot>
-              </template>
-              <template v-else>
-                <!-- 自定义表头下的列内容展示,配置了自定义表头列,该列下的内容无法使用attrs下的格式类等其它方法 -->
-                <slot name="other-header-col" :row="scope.row">
-                  {{ scope.row[item.attrs.prop] }}
-                </slot>
-              </template>
+            <template v-else>
+              <template>{{ item.attrs.label }}</template>
+              <br />
+              <slot
+                :name="item.slotHeaderName"
+                :row="item"
+                v-if="showSearchTable"
+                v-bind="item.attrs || {}"
+              >
+              </slot>
             </template>
-          </el-table-column>
-
-          <!-- 填充剩余宽度列 -->
-          <el-table-column
-            v-else-if="index == copyColConfig.length - autoIndex"
-            :key="index"
-          >
-          </el-table-column>
-
-          <!-- 自定义列(内容) -->
-          <el-table-column
-            v-else-if="item.slot && item.switch"
-            :key="index"
-            v-bind="item.attrs || {}"
-          >
-            <template slot-scope="scope">
-              <slot :name="item.slot" :scope="scope.row">{{
-                "自定义列插槽默认内容"
-              }}</slot>
-            </template>
-          </el-table-column>
-
-          <!-- 一般正常列 -->
-          <template v-else>
-            <el-table-column
-              :key="index"
-              v-if="item.switch"
-              v-bind="item.attrs || {}"
-            >
-            </el-table-column>
           </template>
+
+          <!-- 自定义表头列下的内容 -->
+          <template slot-scope="scope">
+            <template v-if="item.slotHeaderName === 'hbSetting'">
+              <slot name="operation" :row="scope.row"></slot>
+            </template>
+            <template v-else>
+              <!-- 自定义表头下的列内容展示,配置了自定义表头列,该列下的内容无法使用attrs下的格式类等其它方法 -->
+              <slot name="other-header-col" :row="scope.row">
+                {{ scope.row[item.attrs.prop] }}
+              </slot>
+            </template>
+          </template>
+        </el-table-column>
+
+        <!-- 自定义列(内容) -->
+        <el-table-column
+          v-else-if="item.slot && item.switch"
+          :key="index"
+          v-bind="item.attrs || {}"
+        >
+          <template slot-scope="scope">
+            <slot :name="item.slot" :scope="scope.row">{{
+              "自定义列插槽默认内容"
+            }}</slot>
+          </template>
+        </el-table-column>
+
+        <!-- 填充剩余宽度列 -->
+        <el-table-column
+          v-else-if="index == copyColConfig.length - autoIndex"
+          :key="index"
+        >
+        </el-table-column>
+        <!-- 一般正常列 -->
+        <template v-else>
+          <el-table-column
+            :key="index"
+            v-if="item.switch"
+            v-bind="item.attrs || {}"
+          >
+          </el-table-column>
         </template>
-      </el-table>
-    <!-- </transition> -->
+      </template>
+    </el-table>
+    <!-- 侧边栏配置列表展示项 -->
     <el-drawer :title="drawerTitle" :visible.sync="drawer" size="15%">
       <table-config
         :initList="colConfig"
@@ -156,7 +148,7 @@ export default {
       type: String,
       default: "hb_table",
       /*
-        stripe:表单名
+        tableName:表单名
         必填：否
         type:String;
         默认为hb_table。
@@ -183,26 +175,26 @@ export default {
         默认为false，设置为true即为启用。
       */
     },
-    height: {
-      type: Number || String,
-      /*
-        height:Table 的高度，默认为自动高度。
-        必填：否
-        如果 height 为 number 类型，单位 px；
-        如果 height 为 string 类型，则这个高度会设置为 Table 的 style.height 的值，
-        Table 的高度会受控于外部样式。
-      */
-    },
-    selection: {
-      type: Boolean,
-      default: false,
-      /*
-        selection:多选;
-        必填：否
-        type:Boolean;
-        默认为false，设置为true即为启用;
-      */
-    },
+    // height: {
+    //   type: Number || String,
+    //   /*
+    //     height:Table 的高度，默认为自动高度。
+    //     必填：否
+    //     如果 height 为 number 类型，单位 px；
+    //     如果 height 为 string 类型，则这个高度会设置为 Table 的 style.height 的值，
+    //     Table 的高度会受控于外部样式。
+    //   */
+    // },
+    // selection: {
+    //   type: Boolean,
+    //   default: false,
+    //   /*
+    //     selection:多选;
+    //     必填：否
+    //     type:Boolean;
+    //     默认为false，设置为true即为启用;
+    //   */
+    // },
     selectionEvent: {
       type: Function,
       /*
@@ -260,6 +252,30 @@ export default {
       require: false,
       default: () => window.location.href.split("?")[0].split("/").slice(-1)[0],
     },
+    rowClassNames: {
+      //行的 className 的回调方法，也可以使用字符串为所有行设置一个固定的 className。见el-table官方文档
+      type: Function,
+      require: false,
+      default: () => {
+        return {};
+      },
+    },
+    handleMouseEnter: {
+      //	当单元格 hover 进入时会触发该事件。见el-table官方文档
+      type: Function,
+      require: false,
+      default: () => {
+        return {};
+      },
+    },
+    handleMouseLeave: {
+      //当单元格 hover 退出时会触发该事件。见el-table官方文档
+      type: Function,
+      require: false,
+      default: () => {
+        return {};
+      },
+    },
     // slotHeaderName: 自定义列表头插槽名字;
     // slotHeaderSearchType:自定义列表头插槽-搜索框类型;//目前配置input 和select 的可以便利循环
     // 自定义列表头插槽-搜索框key;//用于配置传递给服务端的查询key
@@ -271,7 +287,9 @@ export default {
   },
   data() {
     return {
-      multipleSelection: [],
+      headerClass: "table-header-gray", //表头行的 className 的回调方法，也可以使用字符串为所有表头行设置一个固定的 className。
+      cellClassName:'cell-class-name',
+     multipleSelection: [],
       num: 0,
       drawer: false,
       copyColConfig: JSON.parse(JSON.stringify(this.colConfig)),
@@ -284,9 +302,11 @@ export default {
     },
   },
   methods: {
+    //打开侧边抽屉进行配置
     handleSetTable() {
       this.drawer = true;
     },
+
     handleSelectionChange(val) {
       this.num = val.length;
       this.multipleSelection = val;
@@ -299,31 +319,28 @@ export default {
       this.$refs[this.tableName].clearSelection();
       this.num = 0;
     },
+
+    //拖拽后以及开关开闭后展示最新列的顺序
     handleColConfig(val) {
       this.copyColConfig = JSON.parse(JSON.stringify(val));
-      console.log("改变了吗--------", this.copyColConfig);
     },
-    handleShow() {
-      this.showSearchTable = true;
-    },
+
+    //调用查询
     handleSearch() {
       this.$emit("to-search");
     },
+    //重置查询
     handleResetSearch() {
       this.$emit("reset-search");
     },
   },
   created() {
-    // console.log("进来了几次");
+    //获取用户上次拖拽后保存在本地列表展示的配置项
     if (this.haveHbSetting) {
-      // console.log(999999999);
       this.copyColConfig =
         JSON.parse(sessionStorage.getItem(this.saveComponentKey)) ||
         this.colConfig;
     }
-    // else {
-    // this.copyColConfig = this.colConfig;
-    // }
   },
 };
 </script>
@@ -331,6 +348,18 @@ export default {
 // @import "@/styles/element-variables.less";
 .hb_table {
   background: #fff;
+
+  // position: relative;
+  // // height: 430px;
+  // width: 461px;
+  // overflow: auto;
+  // will-change: transform;
+  // direction: ltr;
+  .cell-class-name{
+    border-left:none;
+    border-right: none;
+  }
+
   .table-header-gray {
     background: #f2f3f5;
     color: #242833;
@@ -365,11 +394,11 @@ export default {
   //   padding: 0 5px;
   //   display: none;
   // }
-  .i-division {
-    cursor: pointer;
-    font-size: 18px;
-    padding: 5px;
-  }
+  // .i-division {
+  //   cursor: pointer;
+  //   font-size: 18px;
+  //   padding: 5px;
+  // }
 }
 </style>
   
