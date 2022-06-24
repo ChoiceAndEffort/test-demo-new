@@ -17,7 +17,7 @@ export default {
   },
 };
 </script>
-<style lang="less" scoped>
+<style lang="scss" scoped>
 // @import "@/styles/element-variables.less";
 .table-hint {
   height: 32px;

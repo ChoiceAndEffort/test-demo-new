@@ -19,8 +19,11 @@
         </el-switch>
       </div>
     </div>
+    <div class="divider-area">
+      <div class="divider-father"></div>
+      <div class="divider">以上属性不可排序</div>
+    </div>
 
-    <div class="divider">-------------以上属性不可排序-------------</div>
     <!-- 可拖拽区 -->
     <draggable
       class="wrapper"
@@ -135,7 +138,7 @@ export default {
   },
 };
 </script>
-<style lang="less">
+<style lang="scss">
 .table-config {
   padding: 15px;
   .config-header {
@@ -147,11 +150,31 @@ export default {
     color: #409eff;
     cursor: pointer;
   }
+  .divider-area {
+    position: relative;
+    height: 26px;
+    line-height: 26px;
+    margin-top: 10px;
+  }
+  .divider-father {
+    height: 2px;
+    background: rgba(0, 0, 0, 0.04);
+  }
+  // .divider-father:after {
+  //   clear: both;
+  //   content: "";
+  //   height: 0;
+  //   visibility: hidden;
+  //   display: block;
+  // }
+
   .divider {
     color: #b8c0cb;
-    margin: 10px 0;
-    padding: 0 4px;
     font-size: 12px;
+    text-align: center;
+    width: 100%;
+    position: absolute;
+    transform: translate(0%, -50%);
   }
   .label {
     padding: 8px 8px;

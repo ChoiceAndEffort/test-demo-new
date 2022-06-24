@@ -1,102 +1,65 @@
+<!--银行信息列表-->
 <template>
-  <div class="fms-view">
+  <div class="fms-view bank-list">
+    <h3 class="h3-title">银行信息</h3>
+    <div class="header-operate-area">
+      <el-button
+        type="primary"
+        icon="el-icon-plus"
+        class="add-btn"
+        @click="handleAddvoucherInfo('add')"
+        >新增银行信息</el-button
+      >
+      <el-button>导入银行信息</el-button>
+    </div>
+
     <div class="fms-content">
       <hb-table
+        v-loading="loading"
         :colConfig="colConfig"
-        :tableData="
-          initData.data &&
-          initData.data.map((item, index) => {
-            return { ...item, id: searchForm.page * searchForm.size + index };
-          })
-        "
+        :tableData="initData.data"
         row-key="id"
-        max-height="550"
+        height="calc(100vh - 265px)"
         :selection="true"
         :border="true"
-        saveComponentKey="page6-01"
         @to-search="handleToSearch"
         @reset-search="handleResetSearch"
-        @selectionEvent="handleSelectionEvent"
+        @update-search-col-config="handleUpdateSearchColConfig"
       >
         <!--自定义表头列插槽--表头查询项----- 循环遍历input和select搜索框  -->
+
         <template
           v-for="(item, index) in searchColConfig"
           :slot="item.slotHeaderName"
           slot-scope="scope"
         >
-          <el-input
+          <hb-search
+            :item="item"
             :key="index"
-            v-if="item.slotHeaderSearchType === 'input'"
-            size="mini"
-            v-model.trim="searchForm[scope.row.searchKey]"
-            placeholder="请输入"
-          ></el-input>
-          <el-select
-            v-else-if="item.slotHeaderSearchType === 'select'"
-            :key="index"
-            size="mini"
-            v-model="searchForm[scope.row.searchKey]"
-            placeholder="请选择"
-          >
-            <el-option
-              v-for="item in statusOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            >
-            </el-option>
-          </el-select>
+            :searchColConfig="searchColConfig"
+            :searchForm="searchForm"
+            :row="scope.row"
+          />
         </template>
 
-        <!-- 自定义表头列插槽--表头查询项-----非input和select类型 ---如:搜索日期项 -->
-        <template slot="searchRawMaterialTotalWeight" slot-scope="scope">
-          <el-date-picker
-            v-model="searchForm[scope.row.searchKey]"
-            type="date"
-            size="mini"
-            style="width:100%;'"
-            placeholder="请选择"
+        <!-- 自定义表头列下的插槽 -->
+        <template slot="switchDelFlag" slot-scope="scope">
+          <el-switch
+            v-model="scope.row.delFlag"
+            :active-value="1"
+            :inactive-value="2"
+            @change="handleSwitchChange(scope.row, scope.row.swiftCode)"
           >
-          </el-date-picker>
+          </el-switch>
         </template>
 
         <!--自定义表头列插槽----下的列内容插槽--------如:插槽'hbSetting'下展示操作项 -->
         <template slot="operation" slot-scope="scope">
-          <el-button
-            type="text"
-            v-if="operateList.length === 1"
-            :disabled="handleColBtnIsDisabled(scope.row)"
-            @click="handleOperateCol(operateList[0].eventsName, scope.row)"
-            >详情</el-button
-          >
-          <el-dropdown trigger="hover" v-else>
-            <span class="el-dropdown-link">
-              <i class="el-icon-arrow-down el-icon--right"></i>
-            </span>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item
-                v-for="(item, index) in operateList"
-                :key="index"
-                :disabled="item.disabled && handleColBtnIsDisabled(scope.row)"
-                @click.native="handleOperateCol(item.eventsName, scope.row)"
-                >{{ item.btnName }}</el-dropdown-item
-              >
-            </el-dropdown-menu>
-          </el-dropdown>
-        </template>
-
-        <!-- 自定义列插槽-在这里你可以展示你想要的每列不同的类容 -->
-        <template slot="addCol" slot-scope="scope">
-          <div style="padding: 30px; background: gray">
-            <el-table :data="tableData1" style="width: 100%">
-              <el-table-column prop="nestingName" label="日期" width="180">
-              </el-table-column>
-              <el-table-column prop="totalPage" label="姓名" width="180">
-              </el-table-column>
-              <el-table-column prop="sparePartsTotalWeight" label="地址">
-              </el-table-column>
-            </el-table>
-          </div>
+          <hb-operate
+            :operateList="operateList"
+            :row="scope.row"
+            @setEventsName="setEventsName"
+          ></hb-operate>
         </template>
       </hb-table>
     </div>
@@ -109,58 +72,79 @@
         :isShowLayoutSizes="true"
       />
     </div>
+
+    <hb-dialog
+      :visible.sync="bankDialogVisible"
+      v-if="bankDialogVisible"
+      :show-footer="true"
+      width="488px"
+      :title="bankDialogVisibleTitle"
+      confirmBtnName="保存"
+      :onConfirm="handleSubmitForm"
+      :canConfirm="submitLoading"
+    >
+      <el-form
+        :model="formData"
+        :rules="bankListRules"
+        ref="bank-list"
+        label-width="100px"
+        label-position="top"
+      >
+        <hb-form-item :formData="formData" :formItemList="formItemList">
+        </hb-form-item>
+      </el-form>
+    </hb-dialog>
   </div>
 </template>
 
 <script>
 const INIT_SEARCH = {
+  status: 1,
   page: 0,
   size: 10,
 };
-import HbTable from "../../components/hb-table/index.vue";
-import Pagination from "../../components/hb-pagination/index.vue";
-import { colConfig } from "./constants.js";
-import tableMixins from "./table-mixins.js";
+// import {
+//   bankInfoList,
+//   // bankInfoDel,
+//   uploadXlsUrl,
+//   changeBankListSwitch,
+//   bankInfoStore,
+// } from "@/api/fms.js";
+// import { TableBody, Pagination, Form } from "gggj_lib";
+import HbTable from "@/components/hb-table/index.vue";
+import Pagination from "@/components/hb-pagination/index.vue";
+import HbDialog from "@/components/hb-dialog/index.vue";
+import HbFormItem from "@/components/hb-form/index.vue";
+import HbOperate from "@/components/hb-operate/index.vue";
+import HbSearch from "@/components/hb-search/index.vue";
+import { colConfig, bankListRules, formItemList } from "./constants.js";
+import tableMixins from "@/mixins/table-mixins.js";
+import { cleanParams } from "@/utils/index.js";
+import { cloneDeep } from "lodash";
 export default {
   components: {
     HbTable,
     Pagination,
+    HbDialog,
+    HbFormItem,
+    HbSearch,
+    HbOperate,
   },
   mixins: [tableMixins],
   data() {
     return {
       colConfig,
+      bankListRules,
+
+      formItemList,
       // 搜索条件
       searchForm: {
-        ...JSON.parse(JSON.stringify(INIT_SEARCH)),
+        ...cloneDeep(INIT_SEARCH),
       },
-      statusOptions: [
-        {
-          label: "未开发",
-          value: "0",
-        },
-        {
-          label: "已开发,未受控",
-          value: "1",
-        },
-        {
-          label: "已受控,未下发",
-          value: "2",
-        },
-      ],
       //操作项list
       operateList: [
         {
-          btnName: "详情",
-          eventsName: "handleSeeDetail",
-        },
-        {
-          btnName: "删除",
-          eventsName: "handleDelete",
-          disabled: true, //是否禁用
-        },
-        {
-          btnName: "编辑",
+          btnName: "修改",
           eventsName: "handleEdit",
         },
       ],
@@ -170,106 +154,153 @@ export default {
         size: 10,
         data: [],
       },
+      loading: false,
+
+      bankDialogVisible: false,
+      bankDialogVisibleTitle: "新增银行信息",
+      submitLoading: false,
+      formData: {
+        code: "",
+        name: "",
+        address: "",
+      },
     };
   },
   methods: {
-    //多选框的数据
-    handleSelectionEvent(value) {
-      console.log("多选数据----------", value);
+    async handleSwitchChange(row) {
+      const { id, delFlag } = row;
+      console.log(1111111111, id, delFlag);
+      try {
+        let res = await changeBankListSwitch({ id, delFlag });
+        this.pageList();
+      } catch (error) {
+        this.pageList();
+      }
+      // this.$message({
+      //   message: row ? "开启成功" : "关闭成功",
+      //   type: "success",
+      // });
     },
 
+    handleResetSearch() {
+      this.searchForm = {
+        ...cloneDeep(INIT_SEARCH),
+      };
+      this.publicSearchAndChangeSize();
+    },
     //去查询
     handleToSearch() {
       console.log("看查询条件-----", this.searchForm);
-    },
-
-    //详情页操作项
-    handleSeeDetail(row) {
-      console.log("详情页", row);
-    },
-
-    //删除操作项
-    handleDelete(row) {
-      console.log("删除页", row);
+      this.publicSearchAndChangeSize();
     },
 
     //编辑操作项
     handleEdit(row) {
       console.log("编辑页", row);
+      this.bankDialogVisibleTitle = "修改银行信息";
+      this.formData = { ...row };
+      this.handleAddvoucherInfo("edit");
     },
+
     //操作项父级方法
     handleOperateCol(eventName, row) {
       console.log("操作栏对应的操作项", eventName, row);
       this[eventName](row);
     },
+
     //禁用操作列
     handleColBtnIsDisabled(row) {
-      return row.index === 0;
+      console.log(row, row.delFlag === 1);
+      return row.delFlag === 1;
     },
-
+    setEventsName(eventName, row) {
+      console.log(eventName, row);
+      this[eventName](row);
+    },
     //翻页--查询
     handleChangePage(page) {
       this.searchForm.page = page;
-      this.getList();
+      this.pageList();
     },
     //每页条数改变---查询
     handleSizeChange(size) {
       this.searchForm.size = size;
+      this.publicSearchAndChangeSize();
+    },
+    publicSearchAndChangeSize() {
       this.searchForm.page = 0;
-      this.getList();
+      this.initData.page = 0;
+      this.initData.currentPage = 0;
+      this.pageList();
     },
     //查询列表
-    async getList() {
-      let res = await this.$axios.post(
-        "http://192.168.20.151:9099/pms/c/v1/datamanagement/material/getMaterialPage",
-        {
-          ...this.searchForm,
-          couplingId: "220411A7X6SS99WH",
-          engineeringProjectId: "220411A7X6PHXPZC",
-          materialNameValue: "",
-          nestingNameValue: "",
-          procedureId: "220411A84702P8SW",
-          procedureIds: ["220411A84702P8SW"],
-          workingProcedureCode: "GX_ZZ",
+    async pageList() {
+      this.loading = true;
+      try {
+        let res = await this.$axios.post(
+          "http://192.168.20.151:9099/pms/c/v1/datamanagement/material/getMaterialPage",
+
+          {
+            ...this.searchForm,
+          }
+        );
+        this.loading = false;
+        if (res.code === 0) {
+          this.initData = res?.data;
+          return false;
         }
-      );
-      this.initData = { ...res.data.data };
+        this.$message.error(res.message);
+      } catch (error) {
+        this.loading = false;
+        console.log("出错了", error);
+      }
+    },
+    handleAddBankInfo() {
+      this.bankDialogVisibleTitle = "新增银行信息";
+    },
+    handleAddvoucherInfo(edit) {
+      if (edit == "add") {
+        this.formData = cleanParams(this.formData);
+      }
+      this.bankDialogVisible = true;
+    },
+    async handleSubmitForm() {
+      const validate = await this.$refs["bank-list"]
+        .validate()
+        .catch(() => false);
+      console.log(validate, "提交校验", this.formData);
+      if (!validate) return false;
+      try {
+        this.submitLoading = true;
+        let res = await bankInfoStore(this.formData);
+        this.bankDialogVisible = false;
+        this.submitLoading = false;
+        this.pageList();
+      } catch (error) {
+        this.bankDialogVisible = false;
+        this.submitLoading = false;
+      }
     },
   },
   created() {
-    this.getList();
+    this.pageList();
   },
 };
 </script>
-<style lang="scss" scoped>
-.fms-view {
-  height: 100%;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  box-sizing: border-box;
-  padding-bottom: 30px;
-  .fms-table-name {
-    height: 30px;
-    line-height: 30px;
+
+<style scoped lang="scss">
+@import "./fms.scss";
+.bank-list {
+  .h3-title {
+    padding: 16px 0;
+    font-size: 16px;
+    color: #242833;
   }
-  .fms-content {
-    flex: 1;
-    box-sizing: border-box;
-    padding: 5px 0;
-    overflow-y: auto;
-    // border: 1px solid #f1f1f1;
-  }
-  .fms-pagination {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    box-shadow: 0px -3px 6px 1px rgba(0, 0, 0, 0.07);
+  .header-operate-area {
+    padding-bottom: 16px;
+    .add-btn {
+      // margin-right: 6px;
+    }
   }
 }
 </style>

@@ -12,20 +12,20 @@
       :border="border"
       :style="{ width: drawer ? '85%' : '100%' }"
       :header-row-class-name="headerClass"
-      :cell-class-name="cellClassName"
       :row-class-name="rowClassNames || rowClassName"
+      :cell-class-name="cellClassName"
       @selection-change="handleSelectionChange"
       @cell-mouse-enter="handleMouseEnter"
       @cell-mouse-leave="handleMouseLeave"
     >
       <template v-for="(item, index) in copyColConfig">
-        <!-- 自定义列(头部)及对应列内容展示 -->
+        <!-- 自定义列(头部)及对应列内容展示-包含头插槽和内容查抄 -->
         <el-table-column
           v-if="item.slotHeaderName && item.switch"
           :key="index"
           v-bind="item.attrs || {}"
-          :align="item.attrs.align"
         >
+          <!-- 头插槽 -->
           <template slot="header" slot-scope="scope">
             <template v-if="item.slotHeaderName === 'hbSetting'">
               <!-- 展示表头搜索 -->
@@ -53,7 +53,7 @@
               ></i>
             </template>
             <template v-else>
-              <template>{{ item.attrs.label }}</template>
+              {{ copyColConfig[index].attrs.label }}
               <br />
               <slot
                 :name="item.slotHeaderName"
@@ -67,18 +67,36 @@
 
           <!-- 自定义表头列下的内容 -->
           <template slot-scope="scope">
+            <!-- 自定义表头列下的操作项插槽 -->
             <template v-if="item.slotHeaderName === 'hbSetting'">
               <slot name="operation" :row="scope.row"></slot>
             </template>
+            <!-- 自定义表头列下-非操作项插槽 -->
             <template v-else>
-              <!-- 自定义表头下的列内容展示,配置了自定义表头列,该列下的内容无法使用attrs下的格式类等其它方法 -->
-              <slot name="other-header-col" :row="scope.row">
-                {{ scope.row[item.attrs.prop] }}
-              </slot>
+              <!-- 自定义表头下-内容插槽 -->
+              <template v-if="item.slotBodyName">
+                <slot :name="item.slotBodyName" :row="scope.row">
+                  {{
+                    scope.row[item.attrs.prop]
+                      ? scope.row[item.attrs.prop]
+                      : "-"
+                  }}
+                </slot>
+              </template>
+              <!-- 自定义表头下-非内容插槽 -->
+              <template v-else>
+                <!-- 自定义表头列下的内容自定义展示 -->
+                <slot name="other-header-col" :row="scope.row">
+                  {{
+                    scope.row[item.attrs.prop]
+                      ? scope.row[item.attrs.prop]
+                      : "-"
+                  }}
+                </slot>
+              </template>
             </template>
           </template>
         </el-table-column>
-
         <!-- 自定义列(内容) -->
         <el-table-column
           v-else-if="item.slot && item.switch"
@@ -86,12 +104,11 @@
           v-bind="item.attrs || {}"
         >
           <template slot-scope="scope">
-            <slot :name="item.slot" :scope="scope.row">{{
+            <slot :name="item.slot" :row="scope.row">{{
               "自定义列插槽默认内容"
             }}</slot>
           </template>
         </el-table-column>
-
         <!-- 填充剩余宽度列 -->
         <el-table-column
           v-else-if="index == copyColConfig.length - autoIndex"
@@ -120,7 +137,7 @@
   </div>
 </template>
 <!-- 使用示例 -->
-  <!-- 
+<!-- 
     必填参数:colConfig,tableData 
     选题参数：
     关联参数（选填）：selection && selectionEvent
@@ -131,7 +148,7 @@
             slot-scope：数据传递
             scope.row.state:接收数据
   -->
-  <!--   
+<!--   
     <Table :colConfig="copyColConfig" :tableData="tableData" :selection="selection" @selectionEvent="selectionEvent">
       <template slot="opCol">
         <el-button type="text">详情</el-button>
@@ -142,6 +159,7 @@
 <script>
 import TableHint from "./table-hint.vue";
 import TableConfig from "./table-config.vue";
+import { cloneDeep } from "lodash";
 export default {
   props: {
     tableName: {
@@ -167,7 +185,7 @@ export default {
     },
     border: {
       type: Boolean,
-      default: false,
+      default: true,
       /*
         border:带边框
         必填：否
@@ -288,11 +306,11 @@ export default {
   data() {
     return {
       headerClass: "table-header-gray", //表头行的 className 的回调方法，也可以使用字符串为所有表头行设置一个固定的 className。
-      cellClassName:'cell-class-name',
-     multipleSelection: [],
+      cellClassName: "cell-class-name",
+      multipleSelection: [],
       num: 0,
       drawer: false,
-      copyColConfig: JSON.parse(JSON.stringify(this.colConfig)),
+      copyColConfig: cloneDeep(this.colConfig),
       showSearchTable: false,
     };
   },
@@ -323,6 +341,7 @@ export default {
     //拖拽后以及开关开闭后展示最新列的顺序
     handleColConfig(val) {
       this.copyColConfig = JSON.parse(JSON.stringify(val));
+      this.$emit("update-search-col-config", val);
     },
 
     //调用查询
@@ -344,7 +363,7 @@ export default {
   },
 };
 </script>
-<style lang="less">
+<style lang="scss">
 // @import "@/styles/element-variables.less";
 .hb_table {
   background: #fff;
@@ -355,11 +374,6 @@ export default {
   // overflow: auto;
   // will-change: transform;
   // direction: ltr;
-  .cell-class-name{
-    border-left:none;
-    border-right: none;
-  }
-
   .table-header-gray {
     background: #f2f3f5;
     color: #242833;
@@ -394,11 +408,29 @@ export default {
   //   padding: 0 5px;
   //   display: none;
   // }
-  // .i-division {
-  //   cursor: pointer;
-  //   font-size: 18px;
-  //   padding: 5px;
-  // }
+  .i-division {
+    cursor: pointer;
+    font-size: 18px;
+    padding: 5px;
+  }
+  .cell-class-name {
+    border-left: none;
+    border-right: none;
+  }
+  .el-table--border,
+  .el-table--group {
+    border: none;
+  }
+  .el-table::before {
+    height: 0px;
+  }
+  .el-table__fixed-right::before,
+  .el-table__fixed::before {
+    height: 0px;
+  }
+  .el-table--border::after,
+  .el-table--group::after {
+    width: 0;
+  }
 }
 </style>
-  

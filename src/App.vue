@@ -8,7 +8,7 @@
       <router-link to="/page3" class="btn">excel在线编辑page3</router-link>
       <router-link to="/page4" class="btn">excel在线编辑page4</router-link>
       <router-link to="/page5" class="btn">excel在线编辑page5</router-link>
-      <router-link to="/page6" class="btn">page6</router-link>
+      <router-link to="/page6" class="btn">自定义表格组件</router-link>
       <router-link to="/page7" class="btn">page7</router-link>
       <router-link to="/page8" class="btn">page8</router-link>
     </div>

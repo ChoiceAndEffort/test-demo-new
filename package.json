@@ -14,6 +14,7 @@
     "element-ui": "^2.15.6",
     "gggj_lib": "^1.0.41",
     "handsontable": "^6.2.2",
+    "lodash": "^4.17.21",
     "vue": "^2.6.14",
     "vue-router": "^3.5.4",
     "vuedraggable": "^2.24.3",
