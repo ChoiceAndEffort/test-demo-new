@@ -253,6 +253,8 @@
 // ]
 
 export const colConfig = [{
+        dragLocked:true,//锁住不让拖动
+        switchDisabled:true,//禁用关闭
         switch: true, // 是否展示该列
         slotHeaderName: "searchCode", // 表头插槽
         slotHeaderSearchType: "input", // 表头查询类型,目前支持 input 和select

@@ -9,8 +9,9 @@
       <router-link to="/page4" class="btn">excel在线编辑page4</router-link>
       <router-link to="/page5" class="btn">excel在线编辑page5</router-link>
       <router-link to="/page6" class="btn">自定义表格组件</router-link>
-      <router-link to="/page7" class="btn">page7</router-link>
-      <router-link to="/page8" class="btn">page8</router-link>
+      <router-link to="/page7" class="btn">海波原始表格-跨页多选</router-link>
+      <router-link to="/page7-copy" class="btn">海波原始表格-展开行</router-link>
+      <router-link to="/page8" class="btn">大文件上传</router-link>
     </div>
     <div class="content">
       <div class="left">侧边栏</div>

@@ -60,11 +60,15 @@ const addRoute = [
         component: () => import("@/views/page7/page7.vue")
     },
     {
-        path: "/page8",
-        name: "page8",
+        path: "/page7-copy",
+        name: "page7Copy",
         component: () => import("@/views/page7/page7 copy.vue")
     },
-
+    {
+        path: "/page8",
+        name: "page8",
+        component: () => import("@/views/page8/page8.vue")
+    },
 ]
 
 
