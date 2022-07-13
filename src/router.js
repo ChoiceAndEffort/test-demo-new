@@ -5,21 +5,18 @@ import HomeA from './views/homeA.vue'
 Vue.use(Router)
 
 
-const constantRoutes = [
-    {
-        path: "/home",
-        component: () => import("@/views/homeA"),
+const constantRoutes = [{
+    path: "/home",
+    component: () => import("@/views/homeA"),
 
-        name: "首页",
-        // meta: { title: "首页", icon: "el-icon-s-help" }
-    }
-]; // 常用路由表
+    name: "首页",
+    // meta: { title: "首页", icon: "el-icon-s-help" }
+}]; // 常用路由表
 
 
 
 
-const addRoute = [
-    {
+const addRoute = [{
         path: "/login",
         name: "login",
         component: () => import("@/views/login")
@@ -67,7 +64,12 @@ const addRoute = [
     {
         path: "/page8",
         name: "page8",
-        component: () => import("@/views/page8/page8.vue")
+        component: () => import("@/views/page8/index.vue")
+    },
+    {
+        path: "/page9",
+        name: "page9",
+        component: () => import("@/views/page9/index.vue")
     },
 ]
 
@@ -83,9 +85,9 @@ const router = createRouter()
 
 let currentRoutes = router.options.routes
 
-let newList=currentRoutes.concat(addRoute)
+let newList = currentRoutes.concat(addRoute)
 
-router.matcher = new Router().matcher 
+router.matcher = new Router().matcher
 
 router.addRoutes(newList);
 

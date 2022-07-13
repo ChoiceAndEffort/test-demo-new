@@ -23,6 +23,7 @@
         >海波原始表格-展开行</router-link
       >
       <router-link to="/page8" class="btn">大文件上传</router-link>
+      <router-link to="/page9" class="btn">选人组件</router-link>
 
      <span>{{$t('language.loginAccount')}}</span>
     </div>
