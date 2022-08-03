@@ -76,6 +76,7 @@ export default {
     },
     handleClear() {
       this.arr.splice(0, this.arr.length);
+      console.log('清空后的arr--------this.arr',this.arr);
       this.$emit("showListDelAll", this.arr);
     },
   },

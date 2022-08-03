@@ -1,5 +1,10 @@
 <template>
-  <el-dialog :visible.sync="dialogFormVisible" width="960px">
+  <el-dialog
+    :visible.sync="dialogFormVisible"
+    width="960px"
+    v-loading="loading"
+  >
+    <!-- v-if="dialogFormVisible" -->
     <div slot="title" class="title-header">
       <h3>选择人员</h3>
       <el-input
@@ -25,7 +30,6 @@
             show-checkbox
             @check="handleCheckChange"
             @node-expand="handleNodeExpand"
-            v-if="isShowTree"
             node-key="id"
             :filter-node-method="filterNode"
             :default-expand-all="defaultExpandAll"
@@ -94,6 +98,12 @@ export default {
       required: false,
       default: () => {},
     },
+    selectedPerson: {
+      //已选择的人员
+      type: Array,
+      required: false,
+      default: () => [],
+    },
   },
   data() {
     return {
@@ -102,7 +112,7 @@ export default {
         children: "name",
       },
       departMentList: undefined, //部门数据list
-      isShowTree: false, //是否显示选人组件
+      // isShowTree: false, //是否显示选人组件
       staffPageList: undefined, //部门员工list
       dialogFormVisible: false,
       searchDepartmentData: {
@@ -112,6 +122,7 @@ export default {
       filterText: "",
       pageSize: 100000,
       defaultExpandAll: true,
+      loading: false,
     };
   },
 
@@ -134,9 +145,16 @@ export default {
   methods: {
     show() {
       this.dialogFormVisible = true;
+      this.$refs.selectPerson &&
+        this.$refs.selectPerson.setCheckedKeys(this.selectedPerson);
+      this.checkAllArr =
+        this.$refs.selectPerson && this.$refs.selectPerson.getCheckedNodes();
     },
     close() {
       this.dialogFormVisible = false;
+      this.checkAllArr = undefined;
+      this.filterText = "";
+      this.$refs.selectPerson.setCheckedKeys([]);
     },
     // handleAdd() {
     //   for (
@@ -166,6 +184,11 @@ export default {
         if (!node.data.departmentId) {
           return resolve([]);
         }
+        console.log(
+          "------------------node.data.departmentId",
+          node.data,
+          node.data.departmentId
+        );
         this.getStaffPageMethods(node.data.departmentId, resolve);
       }
     },
@@ -175,14 +198,18 @@ export default {
     },
 
     async handleCheckChange(data, checked) {
-      if (checked.checkedNodes.length > this.maxSelect) {
+      let filterCheckNodes = checked?.checkedNodes?.filter(
+        (item) => !item.level
+      );
+      // console.log(checked, 1111111111111, filterCheckNodes);
+      if (filterCheckNodes.length > this.maxSelect) {
         this.$message({
           message: `最多选取${this.maxSelect}条`,
           type: "warning",
         });
         return false;
       }
-      this.checkAllArr = checked.checkedNodes;
+      this.checkAllArr = filterCheckNodes;
     },
 
     handleNodeExpand(a, b, c) {
@@ -199,7 +226,7 @@ export default {
           ...this.getDepartMentSendData,
         });
         this.departMentList = res.data;
-        this.isShowTree = true;
+        // this.isShowTree = true;
         this.departMentList = this.departMentList.map((item) => {
           return {
             ...item,
@@ -214,6 +241,7 @@ export default {
             }),
           };
         });
+        console.log(this.departMentList, 5555555555555);
       } catch (error) {
         console.log(error);
       }
@@ -221,6 +249,7 @@ export default {
 
     // 获取部门人员信息
     async getStaffPageMethods(departmentId, resolve) {
+      this.loading = true;
       try {
         let res = await getStaffPage({
           page: 0,
@@ -233,10 +262,31 @@ export default {
           return {
             ...item.staff,
             positionList: item.positionList,
-            id: item.staff.idCard,
+            id: item.staff.staffId,
           };
         });
-
+        this.$refs.selectPerson.setCheckedKeys(this.selectedPerson);
+        // console.log("******", this.$refs.selectPerson.getCheckedNodes());
+        this.checkAllArr = this.$refs.selectPerson.getCheckedNodes();
+        console.log("--------------  this.checkAllArr", this.checkAllArr);
+        console.log("  this.$refs.selectPerson,", this.$refs.selectPerson);
+        console.log(
+          this.departMentList[this.departMentList.length - 1].children[
+            this.departMentList[this.departMentList.length - 1].children
+              .length - 1
+          ],
+          departmentId
+        );
+        // if (
+        //   this.departMentList[this.departMentList.length - 1].children[
+        //     (
+        //       this.departMentList[this.departMentList.length - 1].children
+        //         .length - 1
+        //     ).departmentId
+        //   ] === departmentId
+        // ) {
+        // }
+        this.loading = false;
         resolve && resolve(dealData);
       } catch (error) {
         console.log(error);
@@ -245,14 +295,20 @@ export default {
     //取消勾选单个
     showListDelOne(value) {
       this.$refs.selectPerson.setCheckedKeys(value);
+      this.checkAllArr = this.checkAllArr.filter((item) =>
+        value.includes(item.staffId)
+      );
+      // console.log(value, 999999, this.checkAllArr);
     },
     //批量取消勾选
     showListDelAll(value) {
+      console.log("批量取消勾选", value);
       this.$refs.selectPerson.setCheckedKeys(value);
+      this.checkAllArr = value;
     },
     handleConfirm() {
-      console.log(this.checkAllArr);
-      this.$emit("getPerson", this.checkAllArr);
+      console.log("this.checkAllArr", this.checkAllArr);
+      this.$emit("getPersonArr", this.checkAllArr);
       this.close();
     },
     // handleConfirm() {
@@ -346,7 +402,15 @@ export default {
 ::v-deep .el-dialog__header {
   padding: 5px 20px 5px;
 }
+::v-deep .el-dialog__body {
+  padding: 0px;
+}
 ::v-deep .el-dialog__footer {
   padding: 10px 20px;
+}
+::v-deep .el-tree-node__children {
+  .el-tree-node__content {
+    height: 52px;
+  }
 }
 </style>
