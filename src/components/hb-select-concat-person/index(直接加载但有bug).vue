@@ -1,5 +1,9 @@
 <template>
-  <el-dialog :visible.sync="dialogFormVisible" width="960px">
+  <el-dialog
+    :visible.sync="dialogFormVisible"
+    width="960px"
+    v-loading="loading"
+  >
     <!-- v-if="dialogFormVisible" -->
     <div slot="title" class="title-header">
       <h3>选择人员</h3>
@@ -16,12 +20,12 @@
     <div class="person-wrap">
       <div class="tree-container">
         <slot name="tab"></slot>
+        <!--   lazy -->
+        <!--       :load="loadNode" -->
         <div class="tree">
           <el-tree
-            v-loading="loading"
+            :data="treeData"
             :props="treeProps"
-            :load="loadNode"
-            lazy
             ref="selectPerson"
             :render-after-expand="false"
             show-checkbox
@@ -120,8 +124,7 @@ export default {
       pageSize: 100000,
       defaultExpandAll: true,
       loading: false,
-      initArr: [],
-      timer: undefined,
+      treeData: [],
     };
   },
 
@@ -148,22 +151,6 @@ export default {
         this.$refs.selectPerson.setCheckedKeys(this.selectedPerson);
       this.checkAllArr =
         this.$refs.selectPerson && this.$refs.selectPerson.getCheckedNodes();
-      let arr = [];
-      this.timer = setInterval(() => {
-        arr.unshift(this.initArr[this.initArr.length - 1]);
-        let dealArr = arr.slice(0, 3);
-        if (
-          Array.from(new Set(dealArr)).length === 1 &&
-          dealArr[0] &&
-          dealArr[1] &&
-          dealArr[2]
-        ) {
-          console.log("数组三个元素相同");
-          clearInterval(this.timer);
-          this.timer = null;
-          this.loading = false;
-        }
-      }, 400);
     },
     close() {
       this.dialogFormVisible = false;
@@ -199,6 +186,11 @@ export default {
         if (!node.data.departmentId) {
           return resolve([]);
         }
+        // console.log(
+        //   "------------------node.data.departmentId",
+        //   node.data,
+        //   node.data.departmentId
+        // );
         this.getStaffPageMethods(node.data.departmentId, resolve);
       }
     },
@@ -239,19 +231,65 @@ export default {
         // this.isShowTree = true;
         this.departMentList = this.departMentList.map((item) => {
           return {
+            //部门级
             ...item,
             id: item.pathId,
             disabled: true,
-            children: item.children.map((el) => {
+            children: item?.children?.map((el) => {
+              //企业级
+              // console.log("el------------66", el, level1, level2);
               return {
                 ...el,
                 id: el.departmentId,
                 // disabled: !el.children || el.children.length,
               };
-            }),
+            })||[],
+            // .map((third, level3) => {
+            //   // console.log(third, level3, "第三级---------------");
+            // }),
           };
         });
-        // console.log(this.departMentList, 5555555555555);
+        let arr = this.departMentList
+          .map((item) => item.children)
+          .flat()
+          .map((item) => item.departmentId)
+          .map((item) =>
+            getStaffPage({
+              page: 0,
+              size: this.pageSize,
+              enterpriseId: this.enterpriseId, //企业id,
+              departmentId: item,
+            })
+          );
+        let resArr = await Promise.allSettled(arr);
+
+        let dealResArr = resArr
+          .map((item) => item.value.data.data)
+          .map((el) =>
+            el.map((dl) => {
+              return {
+                ...dl.staff,
+                positionList: dl.positionList,
+                id: dl.staff.staffId,
+              };
+            })
+          );
+
+        console.log(
+          "5555555555555------------",
+          this.departMentList.map((item) => item.children).flat()
+        );
+
+        this.departMentList
+          .map((item) => item.children)
+          .flat()
+          .forEach((element, index) => {
+            element.children = dealResArr[index]||[];
+          });
+        console.log("dealResArr", dealResArr);
+
+        console.log(this.departMentList, "最新的----------");
+        this.treeData = [...this.departMentList];
       } catch (error) {
         console.log(error);
       }
@@ -278,8 +316,25 @@ export default {
         this.$refs.selectPerson.setCheckedKeys(this.selectedPerson);
         // console.log("******", this.$refs.selectPerson.getCheckedNodes());
         this.checkAllArr = this.$refs.selectPerson.getCheckedNodes();
-        console.log(dealData.length, 99999999999999);
-        this.initArr.push(dealData.length);
+        // console.log("--------------  this.checkAllArr", this.checkAllArr);
+        // console.log("  this.$refs.selectPerson,", this.$refs.selectPerson);
+        // console.log(
+        //   this.departMentList[this.departMentList.length - 1].children[
+        //     this.departMentList[this.departMentList.length - 1].children
+        //       .length - 1
+        //   ],
+        //   departmentId
+        // );
+        // if (
+        //   this.departMentList[this.departMentList.length - 1].children[
+        //     (
+        //       this.departMentList[this.departMentList.length - 1].children
+        //         .length - 1
+        //     ).departmentId
+        //   ] === departmentId
+        // ) {
+        // }
+        this.loading = false;
         resolve && resolve(dealData);
       } catch (error) {
         console.log(error);
@@ -291,6 +346,7 @@ export default {
       this.checkAllArr = this.checkAllArr.filter((item) =>
         value.includes(item.staffId)
       );
+      // console.log(value, 999999, this.checkAllArr);
     },
     //批量取消勾选
     showListDelAll(value) {
@@ -303,15 +359,24 @@ export default {
       this.$emit("getPersonArr", this.checkAllArr);
       this.close();
     },
+    // handleConfirm() {
+    //   let arr = [];
+    //   this.checkAllArr.forEach((item) => {
+    //     let itemData = item.split("&")[1];
+    //     arr.push(JSON.parse(item.split("&")[1]));
+    //   });
+    //   if (!arr.length) {
+    //     this.$message.error("请选择人员");
+    //     return;
+    //   }
+    //   this.$emit("getPerson", arr[0]);
+    //   this.$emit("getPersonArr", arr);
+    //   this.close();
+    // },
   },
   created() {
     console.log("进来了几次");
     this.getDepartMent();
-  },
-  beforeDestroy() {
-    clearInterval(this.timer);
-    this.timer = null;
-    this.loading = false;
   },
 };
 </script>
