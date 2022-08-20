@@ -1,7 +1,6 @@
 <template>
   <div class="page9">
     <el-button @click="handleOpen">打开选人组件</el-button>
-
     <hb-select-concat-person
       ref="selectPerson"
       @getPersonArr="getPerson"
@@ -13,7 +12,6 @@
         <el-tabs
           v-model="getDepartMentSendData.type"
           @tab-click="handleClickTab"
-          slot="tab"
         >
           <el-tab-pane label="行政架构" name="0"></el-tab-pane>
           <!-- <el-tab-pane label="生产架构" name="1"></el-tab-pane> -->
@@ -36,8 +34,9 @@ export default {
       getDepartMentSendData: {
         type: 0,
       },
-      selectedPerson: ["2202199KF94NCTF8"], //已选择的人员
-      maxSelect: 10000,
+      // selectedPerson: ["220413CMKA7695YW","22041878P17YKAFW"], //已选择的人员
+      selectedPerson: ["220413CMKA7695YW","2202258AA06PZMFW"], //已选择的人员
+      maxSelect: 2,
     };
   },
 
@@ -49,7 +48,9 @@ export default {
       this.selectedPerson = data.map((item) => item.staffId);
     },
     handleOpen() {
-      this.$refs.selectPerson.show();
+      this.$nextTick(() => {
+        this.$refs.selectPerson.show();
+      });
     },
   },
   created() {},

@@ -1,33 +1,33 @@
 <template>
   <el-dialog :visible.sync="dialogFormVisible" width="960px" :modal="modal">
+    <!-- v-if="dialogFormVisible" -->
     <div slot="title" class="title-header">
       <h3>选择人员</h3>
-      <el-autocomplete
+      <el-input
+        placeholder="请输入名称"
         v-model.trim="filterText"
-        :fetch-suggestions="querySearchAsync"
-        value-key="copyName"
-        placeholder="请输入人员姓名"
-        @select="handleSelect"
-        size="small"
-        :debounce="1000"
         clearable
-      ></el-autocomplete>
+        class="search"
+        size="mini"
+      >
+      </el-input>
     </div>
+    <!-- <el-button @click="handleAdd">遍历收起全部 </el-button> -->
     <div class="person-wrap" v-loading="loading">
       <div class="tree-container">
         <slot name="tab"></slot>
         <div class="tree">
           <el-tree
-            :key="getDepartMentSendData.type"
             :props="treeProps"
             :load="loadNode"
             lazy
             ref="selectPerson"
             :render-after-expand="false"
             show-checkbox
-            @check-change="handleCheckChange"
+            @check="handleCheckChange"
             @node-expand="handleNodeExpand"
             node-key="id"
+            :filter-node-method="filterNode"
             :default-expand-all="defaultExpandAll"
           >
             <div class="custom-tree-node" slot-scope="{ node, data }">
@@ -65,10 +65,8 @@
       </div>
     </div>
     <div slot="footer" class="dialog-footer">
-      <el-button @click="close" size="small">取 消</el-button>
-      <el-button type="primary" @click="handleConfirm" size="small"
-        >保存</el-button
-      >
+      <el-button @click="dialogFormVisible = false">取 消</el-button>
+      <el-button type="primary" @click="handleConfirm">保存</el-button>
     </div>
   </el-dialog>
 </template>
@@ -114,14 +112,19 @@ export default {
         children: "name",
       },
       departMentList: undefined, //部门数据list
+      // isShowTree: false, //是否显示选人组件
       staffPageList: undefined, //部门员工list
       dialogFormVisible: false,
-      checkAllArr: [], //选择的人员数组
+      searchDepartmentData: {
+        type: 0,
+      },
+      checkAllArr: undefined, //选择的人员数组
       filterText: "",
       pageSize: 100000,
-      defaultExpandAll: false,
+      defaultExpandAll: true,
       loading: false,
       initArr: [],
+      timer: undefined,
     };
   },
 
@@ -129,103 +132,62 @@ export default {
     ShowList,
   },
   watch: {
-    checkAllArr: {
-      handler(nv, ov) {
-        if (this.checkAllArr.length > this.maxSelect) {
-          document.getElementsByClassName("el-message").length === 0 &&
-            this.$message({
-              message: `最多选取${this.maxSelect}条`,
-              type: "warning",
-            });
-          this.checkAllArr = this.checkAllArr.slice(0, 2);
-          return false;
-        }
-      },
-      deep: true,
-      immediate: true,
+    filterText(val) {
+      this.$refs.selectPerson.filter(val);
     },
+    // getDepartMentSendData: {
+    //   handler(nv, ov) {
+    //     this.isShowTree = false;
+    //     this.getDepartMent();
+    //   },
+    //   deep: true,
+    //   // immediate: true,
+    // },
   },
-
   methods: {
-    handleSelect(item) {
-      if (this.checkAllArr.length >= this.maxSelect) {
-        this.$message({
-          message: `最多选取${this.maxSelect}条`,
-          type: "warning",
-        });
-        return false;
-      }
-      if (this.checkAllArr.find((el) => el.staffId === item.id)) return false;
-      this.checkAllArr.push({
-        ...item,
-        id: item.staffId,
-      });
-      this.$refs.selectPerson.setCheckedKeys(
-        this.checkAllArr.map((item) => item.staffId)
-      );
-    },
-
-    async querySearchAsync(queryString, cb) {
-      if (!queryString) return;
-      this.loading = true;
-      try {
-        let res = await getStaffPage({
-          page: 0,
-          size: this.pageSize,
-          enterpriseId: this.enterpriseId, //企业id,
-          name: queryString,
-        });
-        this.staffPageList = res.data.data;
-        let dealData = res?.data?.data?.map((item) => {
-          return {
-            ...item.staff,
-            positionList: item.positionList,
-            id: item.staff.staffId,
-            copyName: `${item.staff.name}-${
-              item.positionList?.[0]?.departmentName || ""
-            }`,
-          };
-        });
-        this.loading = false;
-        cb && cb(dealData);
-      } catch (error) {
-        this.loading = false;
-        console.log(error);
-      }
-    },
-
-    async show() {
+    show() {
       this.dialogFormVisible = true;
-      let arr = this.selectedPerson.map(async (item) => {
-        let res = await getStaffPage({
-          page: 0,
-          size: this.pageSize,
-          enterpriseId: this.enterpriseId, //企业id
-          staffId: item,
-        });
-        return res;
-      });
-      let res2 = await Promise.allSettled(arr);
-      res2 = res2?.map((item) => item.value.code === 0 && item.value.data.data);
-
-      this.checkAllArr = res2.flat().map((item) => {
-        return {
-          ...item.staff,
-          positionList: item.positionList,
-          id: item.staff.staffId,
-        };
-      });
       this.$refs.selectPerson &&
-        this.$refs.selectPerson.setCheckedKeys(
-          this.checkAllArr.map((item) => item.staffId)
-        );
+        this.$refs.selectPerson.setCheckedKeys(this.selectedPerson);
+      this.checkAllArr =
+        this.$refs.selectPerson && this.$refs.selectPerson.getCheckedNodes();
+      let arr = [];
+      this.timer = setInterval(() => {
+        arr.unshift(this.initArr[this.initArr.length - 1]);
+        let dealArr = arr.slice(0, 3);
+        if (
+          Array.from(new Set(dealArr)).length === 1 &&
+          dealArr[0] &&
+          dealArr[1] &&
+          dealArr[2]
+        ) {
+          console.log("数组三个元素相同");
+          clearInterval(this.timer);
+          this.timer = null;
+          this.loading = false;
+        }
+      }, 400);
     },
     close() {
       this.dialogFormVisible = false;
-      this.checkAllArr = [];
+      this.checkAllArr = undefined;
       this.filterText = "";
       this.$refs.selectPerson.setCheckedKeys([]);
     },
+    // handleAdd() {
+    //   for (
+    //     let i = 0;
+    //     i < this.$refs.selectPerson.store._getAllNodes().length;
+    //     i++
+    //   ) {
+    //     console.log(
+    //       this.$refs.selectPerson.store,
+    //       this.$refs.selectPerson.store.root
+    //     );
+
+    //     this.$refs.selectPerson.store._getAllNodes()[i].expanded = false;
+    //   }
+    // },
 
     loadNode(node, resolve) {
       if (node.level === 0) {
@@ -240,48 +202,27 @@ export default {
         if (!node.data.departmentId) {
           return resolve([]);
         }
-        this.getStaffPageMethods("", "", node.data.departmentId, resolve);
+        this.getStaffPageMethods(node.data.departmentId, resolve);
       }
     },
+    filterNode(value, data) {
+      if (!value) return true;
+      return data.name.indexOf(value) !== -1;
+    },
 
-    async handleCheckChange(data, checked, indeterminate) {
-      if (this.checkAllArr.length > this.maxSelect) {
-        document.getElementsByClassName("el-message").length === 0 &&
-          this.$message({
-            message: `最多选取${this.maxSelect}条`,
-            type: "warning",
-          });
+    async handleCheckChange(data, checked) {
+      let filterCheckNodes = checked?.checkedNodes?.filter(
+        (item) => !item.level
+      );
+      // console.log(checked, 1111111111111, filterCheckNodes);
+      if (filterCheckNodes.length > this.maxSelect) {
+        this.$message({
+          message: `最多选取${this.maxSelect}条`,
+          type: "warning",
+        });
         return false;
       }
-
-      data.id &&
-        this.$refs.selectPerson.setMyChecked &&
-        this.$refs.selectPerson.setMyChecked(data, checked, true);
-
-      //右边渲染列表
-      let getCheckedStaffInfo = this.$refs.selectPerson
-        .getCheckedNodes()
-        .filter((item) => item.level !== 1);
-
-      // console.log(getCheckedStaffInfo);
-      if (checked) {
-        this.checkAllArr = [...this.checkAllArr, ...getCheckedStaffInfo].reduce(
-          (pre, cur) => {
-            pre.findIndex((item) => item.staffId === cur.staffId) > -1
-              ? pre
-              : pre.push(cur);
-            return pre;
-          },
-          []
-        );
-      } else {
-        this.checkAllArr = this.checkAllArr.filter(
-          (item) => item.staffId !== data.staffId
-        );
-      }
-
-      //第一个是右侧选择了
-      // console.log("看下变化的值", data, checked, indeterminate);
+      this.checkAllArr = filterCheckNodes;
     },
 
     handleNodeExpand(a, b, c) {
@@ -289,21 +230,16 @@ export default {
       if (b.level != 1) {
         b.data.disabled = false;
       }
-      this.$refs.selectPerson.setCheckedKeys(
-        this.checkAllArr.map((item) => item.staffId)
-      );
     },
 
     async getDepartMent() {
       try {
-        this.loading = true;
         let res = await getDepartmentList({
           enterpriseId: this.enterpriseId,
           ...this.getDepartMentSendData,
         });
-        this.loading = false;
         this.departMentList = res.data;
-
+        // this.isShowTree = true;
         this.departMentList = this.departMentList.map((item) => {
           return {
             ...item,
@@ -313,32 +249,25 @@ export default {
               return {
                 ...el,
                 id: el.departmentId,
-                disabled: !el.children || el.children.length,
+                // disabled: !el.children || el.children.length,
               };
             }),
           };
         });
+        // console.log(this.departMentList, 5555555555555);
       } catch (error) {
-        this.loading = false;
         console.log(error);
       }
     },
 
     // 获取部门人员信息
-    async getStaffPageMethods(
-      name = "",
-      staffId = "",
-      departmentId = "",
-      resolve
-    ) {
+    async getStaffPageMethods(departmentId, resolve) {
       this.loading = true;
       try {
         let res = await getStaffPage({
           page: 0,
           size: this.pageSize,
           enterpriseId: this.enterpriseId, //企业id,
-          name,
-          staffId,
           departmentId: departmentId,
         });
         this.staffPageList = res.data.data;
@@ -349,11 +278,13 @@ export default {
             id: item.staff.staffId,
           };
         });
-        this.loading = false;
+        this.$refs.selectPerson.setCheckedKeys(this.selectedPerson);
+        // console.log("******", this.$refs.selectPerson.getCheckedNodes());
+        this.checkAllArr = this.$refs.selectPerson.getCheckedNodes();
+        console.log(dealData.length, 99999999999999);
+        this.initArr.push(dealData.length);
         resolve && resolve(dealData);
-        return dealData;
       } catch (error) {
-        this.loading = false;
         console.log(error);
       }
     },
@@ -366,17 +297,24 @@ export default {
     },
     //批量取消勾选
     showListDelAll(value) {
+      console.log("批量取消勾选", value);
       this.$refs.selectPerson.setCheckedKeys(value);
       this.checkAllArr = value;
     },
     handleConfirm() {
-      // console.log("this.checkAllArr", this.checkAllArr);
+      console.log("this.checkAllArr", this.checkAllArr);
       this.$emit("getPersonArr", this.checkAllArr);
       this.close();
     },
   },
   created() {
+    console.log("进来了几次");
     this.getDepartMent();
+  },
+  beforeDestroy() {
+    clearInterval(this.timer);
+    this.timer = null;
+    this.loading = false;
   },
 };
 </script>

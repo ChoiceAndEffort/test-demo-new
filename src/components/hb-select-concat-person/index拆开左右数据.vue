@@ -25,7 +25,7 @@
             ref="selectPerson"
             :render-after-expand="false"
             show-checkbox
-            @check-change="handleCheckChange"
+            @check="handleCheckChange"
             @node-expand="handleNodeExpand"
             node-key="id"
             :default-expand-all="defaultExpandAll"
@@ -116,33 +116,40 @@ export default {
       departMentList: undefined, //部门数据list
       staffPageList: undefined, //部门员工list
       dialogFormVisible: false,
-      checkAllArr: [], //选择的人员数组
+      // checkAllArr: [], //选择的人员数组
       filterText: "",
       pageSize: 100000,
       defaultExpandAll: false,
       loading: false,
       initArr: [],
+      leftTree: [],
+      rightTree: [],
     };
   },
 
   components: {
     ShowList,
   },
-  watch: {
+  computed: {
     checkAllArr: {
-      handler(nv, ov) {
-        if (this.checkAllArr.length > this.maxSelect) {
-          document.getElementsByClassName("el-message").length === 0 &&
-            this.$message({
-              message: `最多选取${this.maxSelect}条`,
-              type: "warning",
-            });
-          this.checkAllArr = this.checkAllArr.slice(0, 2);
-          return false;
+      get() {
+        let arr = [...this.leftTree, ...this.rightTree].reduce((pre, cur) => {
+          pre.findIndex((item) => item.staffId === cur.staffId) > -1
+            ? pre
+            : pre.push(cur);
+          return pre;
+        }, []);
+        console.log(arr, "arr的长度--------");
+        if (arr.length > this.maxSelect) {
+          this.$message({
+            message: `最多选取${this.maxSelect}条`,
+            type: "warning",
+          });
+          return arr.slice(0, this.maxSelect);
         }
+
+        return arr;
       },
-      deep: true,
-      immediate: true,
     },
   },
 
@@ -156,7 +163,7 @@ export default {
         return false;
       }
       if (this.checkAllArr.find((el) => el.staffId === item.id)) return false;
-      this.checkAllArr.push({
+      this.rightTree.push({
         ...item,
         id: item.staffId,
       });
@@ -205,16 +212,19 @@ export default {
         });
         return res;
       });
+      //根据初始人员staffId,去获取人员对象信息,展示
       let res2 = await Promise.allSettled(arr);
       res2 = res2?.map((item) => item.value.code === 0 && item.value.data.data);
 
-      this.checkAllArr = res2.flat().map((item) => {
+      this.rightTree = res2.flat().map((item) => {
         return {
           ...item.staff,
           positionList: item.positionList,
           id: item.staff.staffId,
         };
       });
+
+      //左侧,展开项勾选已选择人员信息
       this.$refs.selectPerson &&
         this.$refs.selectPerson.setCheckedKeys(
           this.checkAllArr.map((item) => item.staffId)
@@ -222,7 +232,9 @@ export default {
     },
     close() {
       this.dialogFormVisible = false;
-      this.checkAllArr = [];
+      // this.checkAllArr = [];
+      this.leftTree = [];
+      this.rightTree = [];
       this.filterText = "";
       this.$refs.selectPerson.setCheckedKeys([]);
     },
@@ -244,44 +256,13 @@ export default {
       }
     },
 
-    async handleCheckChange(data, checked, indeterminate) {
-      if (this.checkAllArr.length > this.maxSelect) {
-        document.getElementsByClassName("el-message").length === 0 &&
-          this.$message({
-            message: `最多选取${this.maxSelect}条`,
-            type: "warning",
-          });
-        return false;
-      }
+    async handleCheckChange(data, checked) {
+      let filterCheckNodes = checked?.checkedNodes?.filter(
+        (item) => !item.level
+      );
 
-      data.id &&
-        this.$refs.selectPerson.setMyChecked &&
-        this.$refs.selectPerson.setMyChecked(data, checked, true);
-
-      //右边渲染列表
-      let getCheckedStaffInfo = this.$refs.selectPerson
-        .getCheckedNodes()
-        .filter((item) => item.level !== 1);
-
-      // console.log(getCheckedStaffInfo);
-      if (checked) {
-        this.checkAllArr = [...this.checkAllArr, ...getCheckedStaffInfo].reduce(
-          (pre, cur) => {
-            pre.findIndex((item) => item.staffId === cur.staffId) > -1
-              ? pre
-              : pre.push(cur);
-            return pre;
-          },
-          []
-        );
-      } else {
-        this.checkAllArr = this.checkAllArr.filter(
-          (item) => item.staffId !== data.staffId
-        );
-      }
-
-      //第一个是右侧选择了
-      // console.log("看下变化的值", data, checked, indeterminate);
+      this.rightTree = this.leftTree = [...filterCheckNodes];
+      console.log(this.rightTree, "选择改变", filterCheckNodes);
     },
 
     handleNodeExpand(a, b, c) {
@@ -350,6 +331,7 @@ export default {
           };
         });
         this.loading = false;
+        // console.log("dealData-------------", dealData);
         resolve && resolve(dealData);
         return dealData;
       } catch (error) {
@@ -359,25 +341,30 @@ export default {
     },
     //取消勾选单个
     showListDelOne(value) {
+      console.log("取消单个----", value);
       this.$refs.selectPerson.setCheckedKeys(value);
-      this.checkAllArr = this.checkAllArr.filter((item) =>
+      this.rightTree = this.leftTree = this.checkAllArr.filter((item) =>
         value.includes(item.staffId)
       );
     },
     //批量取消勾选
     showListDelAll(value) {
+      console.log("批量取消勾选", value);
       this.$refs.selectPerson.setCheckedKeys(value);
-      this.checkAllArr = value;
+      // this.checkAllArr = value;
+      this.leftTree = this.rightTree = value;
     },
     handleConfirm() {
-      // console.log("this.checkAllArr", this.checkAllArr);
+      console.log("this.checkAllArr", this.checkAllArr);
       this.$emit("getPersonArr", this.checkAllArr);
       this.close();
     },
   },
   created() {
+    // console.log("进来了几次");
     this.getDepartMent();
   },
+  beforeDestroy() {},
 };
 </script>
 
