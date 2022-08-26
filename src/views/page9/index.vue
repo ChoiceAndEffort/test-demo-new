@@ -35,8 +35,8 @@ export default {
         type: 0,
       },
       // selectedPerson: ["220413CMKA7695YW","22041878P17YKAFW"], //已选择的人员
-      selectedPerson: ["220413CMKA7695YW","2202258AA06PZMFW"], //已选择的人员
-      maxSelect: 2,
+      selectedPerson: ["220413CMKA7695YW"], //已选择的人员
+      maxSelect: 1,
     };
   },
 
@@ -45,7 +45,7 @@ export default {
     handleClickTab() {},
     getPerson(data) {
       console.log("获取最新的节点数据", data);
-      this.selectedPerson = data.map((item) => item.staffId);
+      this.selectedPerson = data.map((item) => item.id);
     },
     handleOpen() {
       this.$nextTick(() => {

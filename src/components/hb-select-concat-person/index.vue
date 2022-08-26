@@ -103,6 +103,7 @@ export default {
       default: () => [],
     },
     modal: {
+      //双弹框是传false值,关闭遮罩
       type: Boolean,
       default: true,
     },
@@ -131,13 +132,13 @@ export default {
   watch: {
     checkAllArr: {
       handler(nv, ov) {
-        if (this.checkAllArr.length > this.maxSelect) {
+        if (nv.length > this.maxSelect) {
           document.getElementsByClassName("el-message").length === 0 &&
             this.$message({
               message: `最多选取${this.maxSelect}条`,
               type: "warning",
             });
-          this.checkAllArr = this.checkAllArr.slice(0, 2);
+          this.checkAllArr = nv.slice(0, this.maxSelect);
           return false;
         }
       },
@@ -370,7 +371,6 @@ export default {
       this.checkAllArr = value;
     },
     handleConfirm() {
-      // console.log("this.checkAllArr", this.checkAllArr);
       this.$emit("getPersonArr", this.checkAllArr);
       this.close();
     },
@@ -459,6 +459,7 @@ export default {
 ::v-deep .el-tree-node__children {
   .el-tree-node__content {
     height: 52px;
+    line-height: 21px;
   }
 }
 </style>

@@ -120,6 +120,7 @@ export default {
   align-items: center;
   height: 46px;
   padding: 0 16px;
+  line-height: 13px;
   .list-item-con {
     flex: 1;
     display: flex;
