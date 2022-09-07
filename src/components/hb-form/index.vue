@@ -91,7 +91,7 @@ export default {
   computed: {
     fromData() {
       let data = group(this.formItemList, this.column);
-      console.log(data);
+      // console.log(data);
       return data;
     },
     span() {

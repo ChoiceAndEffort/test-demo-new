@@ -1,16 +1,15 @@
 <!--银行信息列表-->
 <template>
   <div class="fms-view bank-list">
-    <h3 class="h3-title">银行信息</h3>
+    <h3 class="h3-title">模块信息</h3>
     <div class="header-operate-area">
       <el-button
         type="primary"
         icon="el-icon-plus"
         class="add-btn"
-        @click="handleAddvoucherInfo('add')"
-        >新增银行信息</el-button
+        @click="handleAdd('add')"
+        >新增</el-button
       >
-      <el-button>导入银行信息</el-button>
     </div>
 
     <div class="fms-content">
@@ -42,17 +41,6 @@
           />
         </template>
 
-        <!-- 自定义表头列下的插槽 -->
-        <template slot="switchDelFlag" slot-scope="scope">
-          <el-switch
-            v-model="scope.row.delFlag"
-            :active-value="1"
-            :inactive-value="2"
-            @change="handleSwitchChange(scope.row, scope.row.swiftCode)"
-          >
-          </el-switch>
-        </template>
-
         <!--自定义表头列插槽----下的列内容插槽--------如:插槽'hbSetting'下展示操作项 -->
         <template slot="operation" slot-scope="scope">
           <hb-operate
@@ -74,18 +62,18 @@
     </div>
 
     <hb-dialog
-      :visible.sync="bankDialogVisible"
-      v-if="bankDialogVisible"
+      :visible.sync="dialogVisible"
+      v-if="dialogVisible"
       :show-footer="true"
       width="488px"
-      :title="bankDialogVisibleTitle"
+      :title="dialogTitle"
       confirmBtnName="保存"
       :onConfirm="handleSubmitForm"
       :canConfirm="submitLoading"
     >
       <el-form
         :model="formData"
-        :rules="bankListRules"
+        :rules="rules"
         ref="bank-list"
         label-width="100px"
         label-position="top"
@@ -103,21 +91,14 @@ const INIT_SEARCH = {
   page: 0,
   size: 10,
 };
-// import {
-//   bankInfoList,
-//   // bankInfoDel,
-//   uploadXlsUrl,
-//   changeBankListSwitch,
-//   bankInfoStore,
-// } from "@/api/fms.js";
-// import { TableBody, Pagination, Form } from "gggj_lib";
+const INIT_FORM_DATA = {};
 import HbTable from "@/components/hb-table/index.vue";
 import Pagination from "@/components/hb-pagination/index.vue";
 import HbDialog from "@/components/hb-dialog/index.vue";
 import HbFormItem from "@/components/hb-form/index.vue";
 import HbOperate from "@/components/hb-operate/index.vue";
 import HbSearch from "@/components/hb-search/index.vue";
-import { colConfig, bankListRules, formItemList } from "./constants.js";
+import { colConfig, rules, formItemList } from "./constants.js";
 import tableMixins from "@/mixins/table-mixins.js";
 import { cleanParams } from "@/utils/index.js";
 import { cloneDeep } from "lodash";
@@ -134,7 +115,7 @@ export default {
   data() {
     return {
       colConfig,
-      bankListRules,
+      rules,
 
       formItemList,
       // 搜索条件
@@ -156,52 +137,51 @@ export default {
       },
       loading: false,
 
-      bankDialogVisible: false,
-      bankDialogVisibleTitle: "新增银行信息",
+      dialogVisible: false,
+      dialogDefaultTitle: "信息",
+      dialogTitle: "",
       submitLoading: false,
       formData: {
-        code: "",
-        name: "",
-        address: "",
+        ...cloneDeep(INIT_SEARCH),
       },
     };
   },
   methods: {
-    async handleSwitchChange(row) {
-      const { id, delFlag } = row;
-      console.log(1111111111, id, delFlag);
-      try {
-        let res = await changeBankListSwitch({ id, delFlag });
-        this.pageList();
-      } catch (error) {
-        this.pageList();
-      }
-      // this.$message({
-      //   message: row ? "开启成功" : "关闭成功",
-      //   type: "success",
-      // });
-    },
-
     handleResetSearch() {
       this.searchForm = {
         ...cloneDeep(INIT_SEARCH),
       };
-      this.publicSearchAndChangeSize();
+      this.publicSearch();
     },
     //去查询
     handleToSearch() {
       console.log("看查询条件-----", this.searchForm);
-      this.publicSearchAndChangeSize();
+      this.publicSearch();
+    },
+
+    handleAdd() {
+      this.addAndEditDialog("add");
     },
 
     //编辑操作项
     handleEdit(row) {
-      console.log("编辑页", row);
-      this.bankDialogVisibleTitle = "修改银行信息";
-      this.formData = { ...row };
-      this.handleAddvoucherInfo("edit");
+      this.addAndEditDialog("edit", row);
     },
 
+    addAndEditDialog(key, row) {
+      console.log(row, "编辑数据");
+      this.dialogTitle =
+        key === "edit"
+          ? `修改${this.dialogDefaultTitle}`
+          : `新增${this.dialogDefaultTitle}`;
+      this.dialogVisible = true;
+      this.formData =
+        key === "edit"
+          ? { ...row }
+          : {
+              ...cloneDeep(INIT_SEARCH),
+            };
+    },
     //操作项父级方法
     handleOperateCol(eventName, row) {
       console.log("操作栏对应的操作项", eventName, row);
@@ -220,33 +200,221 @@ export default {
     //翻页--查询
     handleChangePage(page) {
       this.searchForm.page = page;
-      this.pageList();
+      this.getPageList();
     },
     //每页条数改变---查询
     handleSizeChange(size) {
       this.searchForm.size = size;
-      this.publicSearchAndChangeSize();
+      this.publicSearch();
     },
-    publicSearchAndChangeSize() {
+    publicSearch() {
       this.searchForm.page = 0;
       this.initData.page = 0;
       this.initData.currentPage = 0;
-      this.pageList();
+      this.getPageList();
     },
     //查询列表
-    async pageList() {
+    async getPageList() {
       this.loading = true;
       try {
-        let res = await this.$axios.post(
-          "http://192.168.20.151:9099/pms/c/v1/datamanagement/material/getMaterialPage",
+        // let res = await this.$axios.post(
+        //   "http://192.168.20.151:9099/pms/c/v1/datamanagement/material/getMaterialPage",
 
-          {
-            ...this.searchForm,
-          }
-        );
+        //   {
+        //     ...this.searchForm,
+        //   }
+        // );
         this.loading = false;
+        let res = {
+          code: 0,
+          msg: "OK",
+          success: true,
+          timestamp: 1661906982076,
+          data: {
+            total: 10,
+            pageSize: 10,
+            currentPage: 0,
+            lastPage: 1,
+            totalPages: 1,
+            first: true,
+            last: true,
+            data: [
+              {
+                account: "62233279641459259",
+                bankInfo: {
+                  address: "华容大道",
+                  city: "香港",
+                  province: "香港",
+                  swiftCode: null,
+                  code: "999999999999",
+                  delFlag: null,
+                  id: "999999999999",
+                  name: "(测试)中国银行（香港）有限公司人民币清算行",
+                },
+                delFlag: 1,
+                disable: null,
+                id: "220516BCZ0FK28ZC",
+                ownerName: "张民生1",
+              },
+              {
+                account: "62233279641459259",
+                bankInfo: {
+                  address: "华容大道",
+                  city: "香港",
+                  province: "香港",
+                  swiftCode: null,
+                  code: "999999999999",
+                  delFlag: null,
+                  id: "999999999999",
+                  name: "(测试)中国银行（香港）有限公司人民币清算行",
+                },
+                delFlag: 1,
+                disable: null,
+                id: "220516BDH24CKHBC",
+                ownerName: "张民生2",
+              },
+              {
+                account: "62233279641459259",
+                bankInfo: {
+                  address: "华容大道",
+                  city: "香港",
+                  province: "香港",
+                  swiftCode: null,
+                  code: "999999999999",
+                  delFlag: null,
+                  id: "999999999999",
+                  name: "(测试)中国银行（香港）有限公司人民币清算行",
+                },
+                delFlag: 1,
+                disable: null,
+                id: "220516BFSBD7CM80",
+                ownerName: "张民生",
+              },
+              {
+                account: "123456789",
+                bankInfo: {
+                  address: "华容大道",
+                  city: "香港",
+                  province: "香港",
+                  swiftCode: null,
+                  code: "999999999999",
+                  delFlag: null,
+                  id: "999999999999",
+                  name: "(测试)中国银行（香港）有限公司人民币清算行",
+                },
+                delFlag: 1,
+                disable: null,
+                id: "220516CH0HRF2N2W",
+                ownerName: "张二三",
+              },
+              {
+                account: "id",
+                bankInfo: {
+                  address: "湖北襄阳",
+                  city: "北京",
+                  province: "北京",
+                  swiftCode: null,
+                  code: "102100000030",
+                  delFlag: 1,
+                  id: "102100000030",
+                  name: "中国工商银行股份有限公司北京市分行营业部",
+                },
+                delFlag: 1,
+                disable: 11,
+                id: "220524A2BP2HMGTC",
+                ownerName: "线并适处指",
+              },
+              {
+                account: "id",
+                bankInfo: {
+                  address: "湖北襄阳",
+                  city: "北京",
+                  province: "北京",
+                  swiftCode: null,
+                  code: "102100000030",
+                  delFlag: 1,
+                  id: "102100000030",
+                  name: "中国工商银行股份有限公司北京市分行营业部",
+                },
+                delFlag: 1,
+                disable: 11,
+                id: "220524A504ZBG8PH",
+                ownerName: "线并适处指",
+              },
+              {
+                account: "id",
+                bankInfo: {
+                  address: "湖北襄阳",
+                  city: "北京",
+                  province: "北京",
+                  swiftCode: null,
+                  code: "102100000030",
+                  delFlag: 1,
+                  id: "102100000030",
+                  name: "中国工商银行股份有限公司北京市分行营业部",
+                },
+                delFlag: 1,
+                disable: 11,
+                id: "220524A59RX0B1GC",
+                ownerName: "线并适处指",
+              },
+              {
+                account: "123456789",
+                bankInfo: {
+                  address: "华容大道",
+                  city: "香港",
+                  province: "香港",
+                  swiftCode: null,
+                  code: "999999999999",
+                  delFlag: null,
+                  id: "999999999999",
+                  name: "(测试)中国银行（香港）有限公司人民币清算行",
+                },
+                delFlag: 1,
+                disable: null,
+                id: "2206139YP6HH2BXP",
+                ownerName: "张三三",
+              },
+              {
+                account: "62233279641459259",
+                bankInfo: {
+                  address: "华容大道",
+                  city: "香港",
+                  province: "香港",
+                  swiftCode: null,
+                  code: "999999999999",
+                  delFlag: null,
+                  id: "999999999999",
+                  name: "(测试)中国银行（香港）有限公司人民币清算行",
+                },
+                delFlag: 1,
+                disable: null,
+                id: "2206139YP6YY2RP0",
+                ownerName: "张民生",
+              },
+              {
+                account: "ullamco",
+                bankInfo: {
+                  address: "宁夏回族自治区本溪市余姚市",
+                  city: "吉林市",
+                  province: "河南省",
+                  swiftCode: "98",
+                  code: "99",
+                  delFlag: 1,
+                  id: "2206229P5HKYM0SW",
+                  name: "家发水八也",
+                },
+                delFlag: 1,
+                disable: 52,
+                id: "2206229PG4PFKY5P",
+                ownerName: "平片后安手叫",
+              },
+            ],
+          },
+        };
         if (res.code === 0) {
           this.initData = res?.data;
+
           return false;
         }
         this.$message.error(res.message);
@@ -255,15 +423,8 @@ export default {
         console.log("出错了", error);
       }
     },
-    handleAddBankInfo() {
-      this.bankDialogVisibleTitle = "新增银行信息";
-    },
-    handleAddvoucherInfo(edit) {
-      if (edit == "add") {
-        this.formData = cleanParams(this.formData);
-      }
-      this.bankDialogVisible = true;
-    },
+
+    //提交
     async handleSubmitForm() {
       const validate = await this.$refs["bank-list"]
         .validate()
@@ -273,23 +434,25 @@ export default {
       try {
         this.submitLoading = true;
         let res = await bankInfoStore(this.formData);
-        this.bankDialogVisible = false;
+        this.dialogVisible = false;
         this.submitLoading = false;
-        this.pageList();
+        this.getPageList();
       } catch (error) {
-        this.bankDialogVisible = false;
+        this.dialogVisible = false;
         this.submitLoading = false;
       }
     },
+
+    
   },
   created() {
-    this.pageList();
+    this.getPageList();
   },
 };
 </script>
 
 <style scoped lang="scss">
-@import "./fms.scss";
+@import "./public.scss";
 .bank-list {
   .h3-title {
     padding: 16px 0;
