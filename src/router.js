@@ -71,6 +71,11 @@ const addRoute = [{
         name: "page9",
         component: () => import("@/views/page9/index.vue")
     },
+    {
+        path: "/page10",
+        name: "page10",
+        component: () => import("@/views/page10/index.vue")
+    },
 ]
 
 

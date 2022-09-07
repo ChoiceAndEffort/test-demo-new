@@ -10,6 +10,9 @@ import i18n from '@/language/index.js';
 
 import 'element-ui/lib/theme-chalk/index.css';
 
+import LgUiVue from "lg-ui-vue";
+
+Vue.use(LgUiVue);
 
 
 

@@ -24,8 +24,9 @@
       >
       <router-link to="/page8" class="btn">大文件上传</router-link>
       <router-link to="/page9" class="btn">选人组件</router-link>
+      <router-link to="/page10" class="btn">测试rollUp打包的组件</router-link>
 
-     <span>{{$t('language.loginAccount')}}</span>
+      <span>{{ $t("language.loginAccount") }}</span>
     </div>
     <div class="content">
       <div class="left">侧边栏</div>
@@ -37,6 +38,8 @@
 </template>
 
 <script>
+import { testOne } from "lg-npm-packs";
+
 export default {
   name: "App",
   data() {
@@ -69,6 +72,9 @@ export default {
           });
         });
     },
+  },
+  created() {
+    console.log(testOne("自己搭建的第一个包"));
   },
 };
 </script>
