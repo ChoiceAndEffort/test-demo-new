@@ -26,7 +26,7 @@
       <router-link to="/page9" class="btn">选人组件</router-link>
       <router-link to="/page10" class="btn">测试rollUp打包的组件</router-link>
 
-      <span>{{ $t("language.loginAccount") }}</span>
+      <span>{{ $t('language.loginAccount') }}</span>
     </div>
     <div class="content">
       <div class="left">侧边栏</div>
@@ -38,44 +38,40 @@
 </template>
 
 <script>
-import { testOne } from "lg-npm-packs";
-
 export default {
-  name: "App",
+  name: 'App',
   data() {
     return {
-      switchValue: "",
+      switchValue: ''
     };
   },
   methods: {
     changeLaguages(v) {
       console.log(v);
       // this.$i18n.locale === "zh" ? "en" : "zh";
-      this.$confirm("确定切换语言吗?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
+      this.$confirm('确定切换语言吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
       })
         .then(() => {
-          if (this.$i18n.locale === "cn") {
-            this.$i18n.locale = "en"; //关键语句
-            console.log("en");
+          if (this.$i18n.locale === 'cn') {
+            this.$i18n.locale = 'en'; //关键语句
+            console.log('en');
           } else {
-            this.$i18n.locale = "cn"; //关键语句
-            console.log("cn");
+            this.$i18n.locale = 'cn'; //关键语句
+            console.log('cn');
           }
         })
         .catch(() => {
-          console.log("catch");
+          console.log('catch');
           this.$message({
-            type: "info",
+            type: 'info'
           });
         });
-    },
+    }
   },
-  created() {
-    console.log(testOne("自己搭建的第一个包"));
-  },
+  created() {}
 };
 </script>
 
