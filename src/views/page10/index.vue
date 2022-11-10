@@ -52,7 +52,7 @@ const INIT_FORM_DATA = {};
 import { colConfig, rules, formItemList } from '@/views/page6/constants.js';
 import tableMixins from '@/mixins/table-mixins.js';
 import { cloneDeep } from 'lodash';
-import { testOne } from 'hb-utils';
+// import { testOne } from 'hb-utils';
 
 export default {
   name: 'page10',
