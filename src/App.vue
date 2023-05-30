@@ -24,6 +24,7 @@
       <router-link to="/page8" class="btn"> 大文件上传 </router-link>
       <router-link to="/page9" class="btn"> 选人组件 </router-link>
       <router-link to="/page10" class="btn"> 测试rollUp打包的组件 </router-link>
+      <router-link to="/page11" class="btn"> 表格树形结构多选 </router-link>
 
       <span>{{ $t("language.loginAccount") }}</span>
     </div>
