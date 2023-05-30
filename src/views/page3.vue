@@ -1,4 +1,4 @@
-<template >
+<template>
   <div class="batch-import">
     <HotTable
       ref="ht"
@@ -7,7 +7,7 @@
     ></HotTable>
   </div>
 </template>
- 
+
 <script>
 import { HotTable } from "@handsontable/vue";
 import "handsontable/dist/handsontable.full.css";
@@ -44,166 +44,7 @@ export default {
         "经办人",
         "备注",
       ],
-      columns: [
-        {
-          // -1 导入结果
-          data: "result",
-          type: "text",
-          readOnly: true,
-        },
-        {
-          // 0 项目名称
-          data: "othermoneyorderName",
-          type: "text", // def
-          validator(val, callback) {
-            if (that.util.isEmpty(val)) return callback(false);
-            let pattern = /^.{1,100}$/;
-            // console.log(pattern.test(val))
-            if (pattern.test(val)) return callback(true);
-            return callback(false);
-          },
-        },
-        {
-          // 1 关联用户
-          data: "othermoneyorderUseridUserFk",
-          type: "dropdown",
-          source: [],
-          validator: "Vdropdown_Tnull",
-        },
-        {
-          // 2 用户姓名
-          data: "othermoneyorderUsername",
-          type: "text",
-          validator(val, callback) {
-            if (that.util.isEmpty(val)) return callback(false);
-            let pattern = /^.{1,20}$/;
-            // console.log(pattern.test(val))
-            if (pattern.test(val)) return callback(true);
-            return callback(false);
-          },
-        },
-        {
-          // 3 手机号
-          data: "othermoneyorderPhone",
-          type: "text",
-          validator(val, callback) {
-            if (that.util.isEmpty(val)) return callback(true);
-            let pattern = /^([0-9]{0}|1[0-9]{10})$/;
-            // console.log(pattern.test(val))
-            if (pattern.test(val)) return callback(true);
-            return callback(false);
-          },
-        },
-        {
-          // 4 项目类型
-          data: "othermoneyorderOthermoneytypeidOthermoneytypeFk",
-          type: "dropdown",
-          source: [],
-          validator: "Vdropdown_Fnull",
-        },
-        {
-          // 5 项目数量
-          data: "othermoneyorderNum",
-          type: "text",
-          validator(val, callback) {
-            if (that.util.isEmpty(val)) return callback(false);
-            let pattern = /^[1-9][0-9]{0,10}$/;
-            // console.log(pattern.test(val))
-            if (pattern.test(val)) return callback(true);
-            return callback(false);
-          },
-        },
-        {
-          // 6 收支类型
-          data: "othermoneyorderBudgettype",
-          type: "dropdown",
-          source: ["收入", "支出"],
-          validator: "Vdropdown_Fnull",
-        },
-        {
-          // 7 订单日期
-          data: "othermoneyorderTime_date",
-          type: "date",
-          width: 130,
-          dateFormat: "YYYY-MM-DD",
-          correctFormat: true,
-        },
-        {
-          // 8 订单时间
-          data: "othermoneyorderTime_time",
-          type: "time",
-          timeFormat: "HH:mm:ss",
-          correctFormat: true,
-        },
-        {
-          // 9 项目原价
-          data: "othermoneyorderOriginaltotalprice",
-          type: "numeric",
-          numericFormat: {
-            pattern: "0.00",
-          },
-          validator: "VFnull",
-        },
-        {
-          // 10 签约金额
-          data: "othermoneyorderFacttotalprice",
-          type: "numeric",
-          numericFormat: {
-            pattern: "0.00",
-          },
-          validator: "VFnull",
-        },
-        {
-          // 11 支付金额
-          data: "othermoneyorderpayMoney",
-          type: "numeric",
-          numericFormat: {
-            pattern: "0.00",
-          },
-          validator: "VFnull",
-        },
-        {
-          // 12 支付方式
-          data: "othermoneyorderpayPaytype",
-          type: "dropdown",
-          source: ["现金", "支付宝", "微信", "网银", "其它"],
-          validator: "Vdropdown_Fnull",
-        },
-        {
-          // 13 付款日期
-          data: "othermoneyorderpayTime_date",
-          type: "date",
-          width: 130,
-          dateFormat: "YYYY-MM-DD",
-          correctFormat: true,
-        },
-        {
-          // 14 付款时间
-          data: "othermoneyorderpayTime_time",
-          type: "time",
-          timeFormat: "HH:mm:ss",
-          correctFormat: true,
-        },
-        {
-          // 15 经办人
-          data: "othermoneyorderUseroperatoridUserFk",
-          type: "dropdown",
-          source: [],
-          validator: "Vdropdown_Fnull",
-        },
-        {
-          // 16 备注
-          data: "othermoneyorderRemark",
-          type: "text",
-          validator(val, callback) {
-            if (that.util.isEmpty(val)) return callback(true);
-            let pattern = /^.{0,200}$/;
-            // console.log(pattern.test(val))
-            if (pattern.test(val)) return callback(true);
-            return callback(false);
-          },
-        },
-      ],
+      columns: [],
 
       hotSettings: {
         readOnlyCellClassName: "is-readOnly",
@@ -326,12 +167,8 @@ export default {
       },
     };
   },
-  methods: {
-
-  },
+  methods: {},
 };
 </script>
- 
- 
-<style lang="less" scoped>
-</style>
+
+<style lang="less" scoped></style>

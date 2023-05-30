@@ -1,7 +1,9 @@
 <template>
-  <div class="table-hint" v-if="num > 0">
-    <i class="el-icon-info"></i>
-    <p> 已 选 择 <span>{{num}}</span> 项 数 据</p>
+  <div v-if="num > 0" class="table-hint">
+    <i class="el-icon-info" />
+    <p>
+      已 选 择 <span>{{ num }}</span> 项 数 据
+    </p>
     <span type="text" @click="table_empty">清 空</span>
   </div>
 </template>
@@ -11,9 +13,9 @@ export default {
     num: Number,
   },
   methods: {
-      table_empty(){
-          this.$emit('empty',[])
-      }
+    table_empty() {
+      this.$emit("empty", []);
+    },
   },
 };
 </script>
@@ -22,7 +24,7 @@ export default {
 .table-hint {
   height: 32px;
   width: 100%;
-  border: 1px solid ;
+  border: 1px solid;
   border-radius: 2px;
   line-height: 32px;
   box-sizing: border-box;
@@ -33,7 +35,7 @@ export default {
   font-size: 13px;
   margin-bottom: 8px;
   i {
-    color:  #1678FF ;
+    color: #1678ff;
     font-size: 15px;
   }
   p {
@@ -41,7 +43,7 @@ export default {
     word-spacing: -2px;
   }
   span {
-    color:  #1678FF ;
+    color: #1678ff;
     cursor: pointer;
   }
 }

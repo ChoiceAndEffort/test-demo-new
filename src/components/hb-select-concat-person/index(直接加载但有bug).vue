@@ -235,15 +235,16 @@ export default {
             ...item,
             id: item.pathId,
             disabled: true,
-            children: item?.children?.map((el) => {
-              //企业级
-              // console.log("el------------66", el, level1, level2);
-              return {
-                ...el,
-                id: el.departmentId,
-                // disabled: !el.children || el.children.length,
-              };
-            })||[],
+            children:
+              item?.children?.map((el) => {
+                //企业级
+                // console.log("el------------66", el, level1, level2);
+                return {
+                  ...el,
+                  id: el.departmentId,
+                  // disabled: !el.children || el.children.length,
+                };
+              }) || [],
             // .map((third, level3) => {
             //   // console.log(third, level3, "第三级---------------");
             // }),
@@ -284,7 +285,7 @@ export default {
           .map((item) => item.children)
           .flat()
           .forEach((element, index) => {
-            element.children = dealResArr[index]||[];
+            element.children = dealResArr[index] || [];
           });
         console.log("dealResArr", dealResArr);
 

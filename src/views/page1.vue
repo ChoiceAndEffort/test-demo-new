@@ -5,7 +5,7 @@
     <hot-table :settings="hotSettings"></hot-table>
   </div>
 </template>
- 
+
 <script>
 import { HotTable } from "@handsontable/vue";
 import "handsontable/dist/handsontable.full.css";

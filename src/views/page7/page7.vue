@@ -39,7 +39,7 @@
     </el-pagination>
   </div>
 </template>
- 
+
 <script>
 import { TableBody } from "gggj_lib";
 import Pagination from "@/components/hb-pagination/index.vue";

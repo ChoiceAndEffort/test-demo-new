@@ -1,14 +1,14 @@
 <template>
   <div class="page8">
     <input type="file" @change="handleFileChange" />
-    <el-button @click="handleUpload">上传</el-button>
+    <el-button @click="handleUpload"> 上传 </el-button>
   </div>
 </template>
 
 <script>
 const LENGTH = 10; // 切片数量
 export default {
-  name: "page8",
+  name: "PageEight",
   components: {},
   data() {
     return {
@@ -19,18 +19,20 @@ export default {
   },
   computed: {
     uploadPercentage() {
-      if (!this.container.file || !this.data.length) return0;
+      if (!this.container.file || !this.data.length) return 0;
       const loaded = this.data
         .map((item) => item.size * item.percentage)
         .reduce((acc, cur) => acc + cur);
       return parseInt((loaded / this.container.file.size).toFixed(2));
     },
   },
+  created() {},
+  mounted() {},
   methods: {
-    request({ url, method = "post", data, headers = {}, requestList }) {
+    request({ url, method = "post", data, headers = {} }) {
       return new Promise((resolve) => {
         const xhr = new XMLHttpRequest();
-        xhr.upload.onprogress = onProgress;
+
         xhr.open(method, url);
         Object.keys(headers).forEach((key) =>
           xhr.setRequestHeader(key, headers[key])
@@ -62,7 +64,7 @@ export default {
       return fileChunkList;
     },
     // 上传切片，同时过滤已上传的切片
-    async uploadChunks(uploadedList = []) {
+    async uploadChunks() {
       const requestList = this.data
         .map(({ chunk }) => {
           const formData = new FormData();
@@ -74,7 +76,8 @@ export default {
           this.request({
             url: "http://localhost:3000",
             data: formData,
-            onProgress: this.createProgressHandler(this.data[index]),
+            // eslint-disable-line
+            // onProgress: this.createProgressHandler(this.data[index])
           })
         );
       await Promise.all(requestList);
@@ -123,11 +126,9 @@ export default {
       await this.uploadChunks(uploadedList);
     },
   },
-  created() {},
-  mounted() {},
 };
 </script>
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .page8 {
 }
 </style>

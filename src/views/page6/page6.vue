@@ -1,4 +1,3 @@
-<!--银行信息列表-->
 <template>
   <div class="fms-view bank-list">
     <h3 class="h3-title">模块信息</h3>
@@ -91,7 +90,7 @@ const INIT_SEARCH = {
   page: 0,
   size: 10,
 };
-const INIT_FORM_DATA = {};
+
 import HbTable from "@/components/hb-table/index.vue";
 import Pagination from "@/components/hb-pagination/index.vue";
 import HbDialog from "@/components/hb-dialog/index.vue";
@@ -100,7 +99,7 @@ import HbOperate from "@/components/hb-operate/index.vue";
 import HbSearch from "@/components/hb-search/index.vue";
 import { colConfig, rules, formItemList } from "./constants.js";
 import tableMixins from "@/mixins/table-mixins.js";
-import { cleanParams } from "@/utils/index.js";
+
 import { cloneDeep } from "lodash";
 export default {
   components: {
@@ -433,7 +432,7 @@ export default {
       if (!validate) return false;
       try {
         this.submitLoading = true;
-        let res = await bankInfoStore(this.formData);
+
         this.dialogVisible = false;
         this.submitLoading = false;
         this.getPageList();
@@ -442,8 +441,6 @@ export default {
         this.submitLoading = false;
       }
     },
-
-    
   },
   created() {
     this.getPageList();

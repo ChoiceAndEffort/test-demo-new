@@ -3,16 +3,16 @@
     <!--自定义表头列插槽--表头查询项----- 循环遍历input和select搜索框  -->
     <el-input
       v-if="item.slotHeaderSearchType === 'input'"
+      v-model.trim="searchForm[row.searchKey]"
       size="mini"
       clearable
-      v-model.trim="searchForm[row.searchKey]"
       placeholder="请输入"
-    ></el-input>
+    />
     <el-select
       v-else-if="item.slotHeaderSearchType === 'select'"
+      v-model="searchForm[row.searchKey]"
       size="mini"
       clearable
-      v-model="searchForm[row.searchKey]"
       placeholder="请选择"
     >
       <el-option
@@ -20,8 +20,7 @@
         :key="el.value"
         :label="el.label"
         :value="el.value"
-      >
-      </el-option>
+      />
     </el-select>
     <el-date-picker
       v-else-if="item.slotHeaderSearchType === 'picker'"
@@ -30,8 +29,7 @@
       size="mini"
       type="date"
       placeholder="选择日期"
-    >
-    </el-date-picker>
+    />
   </div>
 </template>
 
@@ -59,12 +57,12 @@ export default {
   data() {
     return {};
   },
-  methods: {},
   created() {},
   mounted() {},
+  methods: {},
 };
 </script>
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .hb-search {
 }
 </style>

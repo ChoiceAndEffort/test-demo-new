@@ -210,13 +210,12 @@ export default {
           if (cellProperties.__proto__.readOnly) {
             TD.style.background = "rgba(0,0,0,.1)";
           }
-          TD.style.verticalAlign = "left";//靠左对其
+          TD.style.verticalAlign = "left"; //靠左对其
           TD.innerHTML = value;
         },
         ...item,
       };
     });
-
   },
   mounted() {
     this.$nextTick(() => {

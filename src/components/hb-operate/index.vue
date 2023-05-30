@@ -4,11 +4,12 @@
       type="text"
       :disabled="handleColBtnIsDisabled(row)"
       @click="handleOperateCol(operateList[0].eventsName, row)"
-      >{{ operateList[0].btnName }}</el-button
     >
-    <el-dropdown trigger="hover" v-if="operateList.length > 1">
+      {{ operateList[0].btnName }}
+    </el-button>
+    <el-dropdown v-if="operateList.length > 1" trigger="hover">
       <span class="el-dropdown-link">
-        <i class="el-icon-arrow-down el-icon--right"></i>
+        <i class="el-icon-arrow-down el-icon--right" />
       </span>
       <el-dropdown-menu slot="dropdown">
         <el-dropdown-item
@@ -16,8 +17,9 @@
           :key="index"
           :disabled="item.disabled && handleColBtnIsDisabled(row)"
           @click.native="handleOperateCol(item.eventsName, row)"
-          >{{ item.btnName }}</el-dropdown-item
         >
+          {{ item.btnName }}
+        </el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
   </div>

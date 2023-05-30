@@ -11,17 +11,18 @@
       <el-button
         type="text"
         class="clear pointer"
-        @click="handleClear"
         :disabled="!arr.length"
-        >清空</el-button
+        @click="handleClear"
       >
+        清空
+      </el-button>
     </div>
 
     <ul class="show-list">
       <!-- {{
         arr
       }} -->
-      <li class="list-item pointer" v-for="(item, index) in arr" :key="index">
+      <li v-for="(item, index) in arr" :key="index" class="list-item pointer">
         <div class="list-item-con">
           <div class="name">
             {{ item.name }}
@@ -43,7 +44,7 @@
             <!-- {{JSON.parse(item.split('&')[1]).positionList[0]?JSON.parse(item.split('&')[1]).positionList[0].departmentName:'--'}} {{JSON.parse(item.split('&')[1]).positionList[0]?JSON.parse(item.split('&')[1]).positionList[0].name:'--'}} {{JSON.parse(item.split('&')[1]).staff.mobile}} -->
           </div>
         </div>
-        <i class="el-icon-close" @click="handleDelOne(index, item)"></i>
+        <i class="el-icon-close" @click="handleDelOne(index, item)" />
       </li>
     </ul>
   </div>
@@ -51,11 +52,6 @@
 
 <script>
 export default {
-  data() {
-    return {
-      arr: [],
-    };
-  },
   props: {
     checkAllArr: {
       type: Array,
@@ -64,6 +60,22 @@ export default {
     maxSelect: {
       type: Number,
       default: 0,
+    },
+  },
+  data() {
+    return {
+      arr: [],
+    };
+  },
+  watch: {
+    checkAllArr: {
+      handler(newList) {
+        if (newList) {
+          this.arr = newList.filter((item) => !item.level && item.level !== 0); //过滤掉父级的选择
+        }
+      },
+      immediate: true,
+      deep: true,
     },
   },
   methods: {
@@ -76,19 +88,8 @@ export default {
     },
     handleClear() {
       this.arr.splice(0, this.arr.length);
-      console.log('清空后的arr--------this.arr',this.arr);
+      console.log("清空后的arr--------this.arr", this.arr);
       this.$emit("showListDelAll", this.arr);
-    },
-  },
-  watch: {
-    checkAllArr: {
-      handler(newList) {
-        if (newList) {
-          this.arr = newList.filter((item) => !item.level && item.level !== 0); //过滤掉父级的选择
-        }
-      },
-      immediate: true,
-      deep: true,
     },
   },
 };

@@ -1,5 +1,3 @@
-
-
 <template>
   <div>
     <el-button @click="handleGetData">手动删除行</el-button>
@@ -221,4 +219,4 @@ export default {
     },
   },
 };
-</script> 
+</script>

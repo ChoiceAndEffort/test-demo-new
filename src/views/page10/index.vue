@@ -46,16 +46,16 @@
 const INIT_SEARCH = {
   status: 1,
   page: 0,
-  size: 10
+  size: 10,
 };
 const INIT_FORM_DATA = {};
-import { colConfig, rules, formItemList } from '@/views/page6/constants.js';
-import tableMixins from '@/mixins/table-mixins.js';
-import { cloneDeep } from 'lodash';
+import { colConfig, rules, formItemList } from "@/views/page6/constants.js";
+import tableMixins from "@/mixins/table-mixins.js";
+import { cloneDeep } from "lodash";
 // import { testOne } from 'hb-utils';
 
 export default {
-  name: 'page10',
+  name: "page10",
   mixins: [tableMixins],
   data() {
     return {
@@ -65,77 +65,77 @@ export default {
       formItemList,
       // 搜索条件
       searchForm: {
-        ...cloneDeep(INIT_SEARCH)
+        ...cloneDeep(INIT_SEARCH),
       },
       //操作项list
       operateList: [
         {
-          btnName: '修改',
-          eventsName: 'handleEdit'
-        }
+          btnName: "修改",
+          eventsName: "handleEdit",
+        },
       ],
       //初始化数据
       initData: {
         page: 0,
         size: 10,
-        data: []
+        data: [],
       },
       loading: false,
 
       dialogVisible: false,
-      dialogDefaultTitle: '信息',
-      dialogTitle: '',
+      dialogDefaultTitle: "信息",
+      dialogTitle: "",
       submitLoading: false,
       formData: {
-        ...cloneDeep(INIT_SEARCH)
+        ...cloneDeep(INIT_SEARCH),
       },
       path:
-        'http://localhost:1101/#/transit-page?' +
+        "http://localhost:1101/#/transit-page?" +
         encodeURIComponent(
-          'path=/layout/production-management/personmanagement/department&age=18'
-        )
+          "path=/layout/production-management/personmanagement/department&age=18"
+        ),
     };
   },
   methods: {
     handleToP() {},
     handleResetSearch() {
       this.searchForm = {
-        ...cloneDeep(INIT_SEARCH)
+        ...cloneDeep(INIT_SEARCH),
       };
       this.publicSearch();
     },
     //去查询
     handleToSearch() {
-      console.log('看查询条件-----', this.searchForm);
+      console.log("看查询条件-----", this.searchForm);
       this.publicSearch();
     },
 
     handleAdd() {
-      this.addAndEditDialog('add');
+      this.addAndEditDialog("add");
     },
 
     //编辑操作项
     handleEdit(row) {
-      this.addAndEditDialog('edit', row);
+      this.addAndEditDialog("edit", row);
     },
 
     addAndEditDialog(key, row) {
-      console.log(row, '编辑数据');
+      console.log(row, "编辑数据");
       this.dialogTitle =
-        key === 'edit'
+        key === "edit"
           ? `修改${this.dialogDefaultTitle}`
           : `新增${this.dialogDefaultTitle}`;
       this.dialogVisible = true;
       this.formData =
-        key === 'edit'
+        key === "edit"
           ? { ...row }
           : {
-              ...cloneDeep(INIT_SEARCH)
+              ...cloneDeep(INIT_SEARCH),
             };
     },
     //操作项父级方法
     handleOperateCol(eventName, row) {
-      console.log('操作栏对应的操作项', eventName, row);
+      console.log("操作栏对应的操作项", eventName, row);
       this[eventName](row);
     },
 
@@ -178,7 +178,7 @@ export default {
         this.loading = false;
         let res = {
           code: 0,
-          msg: 'OK',
+          msg: "OK",
           success: true,
           timestamp: 1661906982076,
           data: {
@@ -191,177 +191,177 @@ export default {
             last: true,
             data: [
               {
-                account: '62233279641459259',
+                account: "62233279641459259",
                 bankInfo: {
-                  address: '华容大道',
-                  city: '香港',
-                  province: '香港',
+                  address: "华容大道",
+                  city: "香港",
+                  province: "香港",
                   swiftCode: null,
-                  code: '999999999999',
+                  code: "999999999999",
                   delFlag: null,
-                  id: '999999999999',
-                  name: '(测试)中国银行（香港）有限公司人民币清算行'
+                  id: "999999999999",
+                  name: "(测试)中国银行（香港）有限公司人民币清算行",
                 },
                 delFlag: 1,
                 disable: null,
-                id: '220516BCZ0FK28ZC',
-                ownerName: '张民生1'
+                id: "220516BCZ0FK28ZC",
+                ownerName: "张民生1",
               },
               {
-                account: '62233279641459259',
+                account: "62233279641459259",
                 bankInfo: {
-                  address: '华容大道',
-                  city: '香港',
-                  province: '香港',
+                  address: "华容大道",
+                  city: "香港",
+                  province: "香港",
                   swiftCode: null,
-                  code: '999999999999',
+                  code: "999999999999",
                   delFlag: null,
-                  id: '999999999999',
-                  name: '(测试)中国银行（香港）有限公司人民币清算行'
+                  id: "999999999999",
+                  name: "(测试)中国银行（香港）有限公司人民币清算行",
                 },
                 delFlag: 1,
                 disable: null,
-                id: '220516BDH24CKHBC',
-                ownerName: '张民生2'
+                id: "220516BDH24CKHBC",
+                ownerName: "张民生2",
               },
               {
-                account: '62233279641459259',
+                account: "62233279641459259",
                 bankInfo: {
-                  address: '华容大道',
-                  city: '香港',
-                  province: '香港',
+                  address: "华容大道",
+                  city: "香港",
+                  province: "香港",
                   swiftCode: null,
-                  code: '999999999999',
+                  code: "999999999999",
                   delFlag: null,
-                  id: '999999999999',
-                  name: '(测试)中国银行（香港）有限公司人民币清算行'
+                  id: "999999999999",
+                  name: "(测试)中国银行（香港）有限公司人民币清算行",
                 },
                 delFlag: 1,
                 disable: null,
-                id: '220516BFSBD7CM80',
-                ownerName: '张民生'
+                id: "220516BFSBD7CM80",
+                ownerName: "张民生",
               },
               {
-                account: '123456789',
+                account: "123456789",
                 bankInfo: {
-                  address: '华容大道',
-                  city: '香港',
-                  province: '香港',
+                  address: "华容大道",
+                  city: "香港",
+                  province: "香港",
                   swiftCode: null,
-                  code: '999999999999',
+                  code: "999999999999",
                   delFlag: null,
-                  id: '999999999999',
-                  name: '(测试)中国银行（香港）有限公司人民币清算行'
+                  id: "999999999999",
+                  name: "(测试)中国银行（香港）有限公司人民币清算行",
                 },
                 delFlag: 1,
                 disable: null,
-                id: '220516CH0HRF2N2W',
-                ownerName: '张二三'
+                id: "220516CH0HRF2N2W",
+                ownerName: "张二三",
               },
               {
-                account: 'id',
+                account: "id",
                 bankInfo: {
-                  address: '湖北襄阳',
-                  city: '北京',
-                  province: '北京',
+                  address: "湖北襄阳",
+                  city: "北京",
+                  province: "北京",
                   swiftCode: null,
-                  code: '102100000030',
+                  code: "102100000030",
                   delFlag: 1,
-                  id: '102100000030',
-                  name: '中国工商银行股份有限公司北京市分行营业部'
+                  id: "102100000030",
+                  name: "中国工商银行股份有限公司北京市分行营业部",
                 },
                 delFlag: 1,
                 disable: 11,
-                id: '220524A2BP2HMGTC',
-                ownerName: '线并适处指'
+                id: "220524A2BP2HMGTC",
+                ownerName: "线并适处指",
               },
               {
-                account: 'id',
+                account: "id",
                 bankInfo: {
-                  address: '湖北襄阳',
-                  city: '北京',
-                  province: '北京',
+                  address: "湖北襄阳",
+                  city: "北京",
+                  province: "北京",
                   swiftCode: null,
-                  code: '102100000030',
+                  code: "102100000030",
                   delFlag: 1,
-                  id: '102100000030',
-                  name: '中国工商银行股份有限公司北京市分行营业部'
+                  id: "102100000030",
+                  name: "中国工商银行股份有限公司北京市分行营业部",
                 },
                 delFlag: 1,
                 disable: 11,
-                id: '220524A504ZBG8PH',
-                ownerName: '线并适处指'
+                id: "220524A504ZBG8PH",
+                ownerName: "线并适处指",
               },
               {
-                account: 'id',
+                account: "id",
                 bankInfo: {
-                  address: '湖北襄阳',
-                  city: '北京',
-                  province: '北京',
+                  address: "湖北襄阳",
+                  city: "北京",
+                  province: "北京",
                   swiftCode: null,
-                  code: '102100000030',
+                  code: "102100000030",
                   delFlag: 1,
-                  id: '102100000030',
-                  name: '中国工商银行股份有限公司北京市分行营业部'
+                  id: "102100000030",
+                  name: "中国工商银行股份有限公司北京市分行营业部",
                 },
                 delFlag: 1,
                 disable: 11,
-                id: '220524A59RX0B1GC',
-                ownerName: '线并适处指'
+                id: "220524A59RX0B1GC",
+                ownerName: "线并适处指",
               },
               {
-                account: '123456789',
+                account: "123456789",
                 bankInfo: {
-                  address: '华容大道',
-                  city: '香港',
-                  province: '香港',
+                  address: "华容大道",
+                  city: "香港",
+                  province: "香港",
                   swiftCode: null,
-                  code: '999999999999',
+                  code: "999999999999",
                   delFlag: null,
-                  id: '999999999999',
-                  name: '(测试)中国银行（香港）有限公司人民币清算行'
+                  id: "999999999999",
+                  name: "(测试)中国银行（香港）有限公司人民币清算行",
                 },
                 delFlag: 1,
                 disable: null,
-                id: '2206139YP6HH2BXP',
-                ownerName: '张三三'
+                id: "2206139YP6HH2BXP",
+                ownerName: "张三三",
               },
               {
-                account: '62233279641459259',
+                account: "62233279641459259",
                 bankInfo: {
-                  address: '华容大道',
-                  city: '香港',
-                  province: '香港',
+                  address: "华容大道",
+                  city: "香港",
+                  province: "香港",
                   swiftCode: null,
-                  code: '999999999999',
+                  code: "999999999999",
                   delFlag: null,
-                  id: '999999999999',
-                  name: '(测试)中国银行（香港）有限公司人民币清算行'
+                  id: "999999999999",
+                  name: "(测试)中国银行（香港）有限公司人民币清算行",
                 },
                 delFlag: 1,
                 disable: null,
-                id: '2206139YP6YY2RP0',
-                ownerName: '张民生'
+                id: "2206139YP6YY2RP0",
+                ownerName: "张民生",
               },
               {
-                account: 'ullamco',
+                account: "ullamco",
                 bankInfo: {
-                  address: '宁夏回族自治区本溪市余姚市',
-                  city: '吉林市',
-                  province: '河南省',
-                  swiftCode: '98',
-                  code: '99',
+                  address: "宁夏回族自治区本溪市余姚市",
+                  city: "吉林市",
+                  province: "河南省",
+                  swiftCode: "98",
+                  code: "99",
                   delFlag: 1,
-                  id: '2206229P5HKYM0SW',
-                  name: '家发水八也'
+                  id: "2206229P5HKYM0SW",
+                  name: "家发水八也",
                 },
                 delFlag: 1,
                 disable: 52,
-                id: '2206229PG4PFKY5P',
-                ownerName: '平片后安手叫'
-              }
-            ]
-          }
+                id: "2206229PG4PFKY5P",
+                ownerName: "平片后安手叫",
+              },
+            ],
+          },
         };
         if (res.code === 0) {
           this.initData = res?.data;
@@ -371,16 +371,16 @@ export default {
         this.$message.error(res.message);
       } catch (error) {
         this.loading = false;
-        console.log('出错了', error);
+        console.log("出错了", error);
       }
     },
 
     //提交
     async handleSubmitForm() {
-      const validate = await this.$refs['bank-list']
+      const validate = await this.$refs["bank-list"]
         .validate()
         .catch(() => false);
-      console.log(validate, '提交校验', this.formData);
+      console.log(validate, "提交校验", this.formData);
       if (!validate) return false;
       try {
         this.submitLoading = true;
@@ -392,13 +392,13 @@ export default {
         this.dialogVisible = false;
         this.submitLoading = false;
       }
-    }
+    },
   },
   created() {
     this.getPageList();
-    console.log(testOne, 9999999);
+    // console.log(testOne, 9999999);
   },
-  mounted() {}
+  mounted() {},
 };
 </script>
 <style lang="less" scoped>

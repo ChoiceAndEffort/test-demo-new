@@ -93,7 +93,7 @@
     </el-pagination> -->
   </div>
 </template>
- 
+
 <script>
 import { TableBody } from "gggj_lib";
 import Pagination from "@/components/hb-pagination/index.vue";
@@ -350,9 +350,7 @@ export default {
         console.log(this.data.data, 66666666, index);
       }, 1000);
     },
-    changePage(){
-
-    }
+    changePage() {},
   },
 };
 </script>

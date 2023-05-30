@@ -1,11 +1,16 @@
 <template>
   <!-- <div class='ws-dialog'> -->
-  <el-dialog v-bind="$attrs" v-on="$listeners" :close-on-click-modal="false" custom-class="hb-dialog">
-    <slot></slot>
-    <slot name="footer" v-if="!showFooter" />
-    <span slot="footer" class="dialog-footer" v-if="showFooter">
+  <el-dialog
+    v-bind="$attrs"
+    :close-on-click-modal="false"
+    custom-class="hb-dialog"
+    v-on="$listeners"
+  >
+    <slot />
+    <slot v-if="!showFooter" name="footer" />
+    <span v-if="showFooter" slot="footer" class="dialog-footer">
       <el-button @click="handleCancel">{{ cancelBtnName }}</el-button>
-      <el-button type="primary" @click="onConfirm" :disabled="canConfirm">{{
+      <el-button type="primary" :disabled="canConfirm" @click="onConfirm">{{
         confirmBtnName
       }}</el-button>
     </span>
@@ -14,7 +19,7 @@
 
 <script>
 export default {
-  name: "hb-dialog",
+  name: "HbDialog",
   props: {
     onConfirm: {
       //提交调用的方法
@@ -48,13 +53,13 @@ export default {
   data() {
     return {};
   },
+  created() {
+    console.log("dialog-初始化");
+  },
   methods: {
     handleCancel() {
       this.$emit("update:visible", false);
     },
-  },
-  created() {
-    console.log("dialog-初始化");
   },
 };
 </script>

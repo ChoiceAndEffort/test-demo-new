@@ -1,30 +1,24 @@
 <template>
   <el-pagination
-    background
     v-if="hasPagination"
+    v-model:current-page="pagination.currentPage"
+    background
     class="pagination-wrap"
-    @size-change="handleSizeChange"
-    @current-change="currentChange"
     :total="pagination.total || 0"
     :page-size="pagination.pageSize"
     :page-sizes="pagination.pageSizesArr || [5, 10, 20, 50]"
-    :current-page.sync="pagination.currentPage"
     :layout="
       isShowLayoutSizes
         ? 'total,sizes, prev, pager, next, jumper'
         : 'total, prev, pager, next, jumper'
     "
-  ></el-pagination>
+    @size-change="handleSizeChange"
+    @current-change="currentChange"
+  />
 </template>
 
 <script>
 export default {
-  data() {
-    return {
-      pagination: {},
-      hasPagination: false,
-    };
-  },
   props: {
     data: {
       type: Object,
@@ -40,23 +34,15 @@ export default {
     },
     isShowLayoutSizes: {
       type: Boolean,
-      required:false,
+      required: false,
       default: () => false,
     },
   },
-  methods: {
-    /**
-     * 切换页码
-     * @param { Number } pageIndex 页码
-     */
-    currentChange(pageIndex) {
-      this.$emit("changePage", pageIndex - 1);
-    },
-    handleSizeChange(val) {
-      // this.pagination.size = val;
-      this.$emit("sizeChange", val);
-      console.log(`每页 ${val} 条`);
-    },
+  data() {
+    return {
+      pagination: {},
+      hasPagination: false,
+    };
   },
   watch: {
     data: {
@@ -74,6 +60,20 @@ export default {
       },
       immediate: true,
       deep: true,
+    },
+  },
+  methods: {
+    /**
+     * 切换页码
+     * @param { Number } pageIndex 页码
+     */
+    currentChange(pageIndex) {
+      this.$emit("changePage", pageIndex - 1);
+    },
+    handleSizeChange(val) {
+      // this.pagination.size = val;
+      this.$emit("sizeChange", val);
+      console.log(`每页 ${val} 条`);
     },
   },
 };
